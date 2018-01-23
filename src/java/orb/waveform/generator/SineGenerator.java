@@ -4,21 +4,17 @@ import orb.waveform.Generator;
 
 public class SineGenerator implements Generator {
   public double time;
-  public double mass;
-  public double force;
-  public double ratio;
+  public double frequency;
 
   public double position;
   public double velocity;
   public double acceleration;
 
-  public SineGenerator(double mass, double force, double position) {
+  public SineGenerator(double frequency, double amplitude) {
     this.time = 0;
-    this.mass = mass;
-    this.force = force;
-    this.ratio = this.force / this.mass;
+    this.frequency = frequency;
 
-    this.position = position;
+    this.position = amplitude;
     this.velocity = 0;
     this.acceleration = 0;
   }
@@ -27,7 +23,7 @@ public class SineGenerator implements Generator {
     double delta = time - this.time;
     this.time = time;
 
-    this.acceleration = -1 * this.ratio * this.position;
+    this.acceleration = -this.frequency * this.frequency * this.position;
     this.velocity += delta * this.acceleration;
     this.position += delta * this.velocity;
     return position;

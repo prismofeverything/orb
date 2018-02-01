@@ -32,7 +32,7 @@ public class Emit {
     line.open(format);
     line.start();
 
-    ByteBuffer buffer = ByteBuffer.allocate(line.getBufferSize());   
+    ByteBuffer buffer = ByteBuffer.allocate(line.getBufferSize());
     long totalSamples = (long) Math.floor(Generator.SAMPLING_RATE * seconds);
     double signal = 0;
     double sample = 0;

@@ -1,6 +1,9 @@
 (ns orb.core
+  (:require
+   [orb.midi :as midi])
   (:import
    [orb.waveform Emit Generator]
+   [orb.event Keyboard Event PrintEvent]
    [orb.waveform.generator
     AddGenerator
     SineGenerator
@@ -37,3 +40,8 @@
 (defn emit
   [generator t]
   (Emit/at generator t))
+
+(defn keyboard
+  []
+  (Keyboard. "Digital Piano"))
+

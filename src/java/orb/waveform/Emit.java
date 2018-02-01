@@ -15,7 +15,8 @@ public class Emit {
   public final static double SIGNAL_STEPS = 1000;
   public final static double SIGNAL_STEP = 1.0 / SIGNAL_STEPS;
 
-  public static void at(Generator generator, double seconds) throws InterruptedException, LineUnavailableException 
+  public static void at(Generator generator, double seconds)
+    throws InterruptedException, LineUnavailableException 
   {
     double time = 0;
 

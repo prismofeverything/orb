@@ -65,6 +65,10 @@ public class Keyboard implements Receiver {
     this.keyboard.close();
   }
 
+  public double read(int voice) {
+    return 0;
+  }
+
   public void send(MidiMessage message, long timestamp) {
     HashMap<String, Integer> values = new HashMap<String, Integer>();
     int length = message.getLength();

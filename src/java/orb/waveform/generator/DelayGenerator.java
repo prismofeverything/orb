@@ -28,11 +28,11 @@ public class DelayGenerator extends Generator {
     this.time += delta;
 
     // the source is read directly and stored at the head
-    double source = this.source.read(delta);
+    double source = this.source.read();
     samples[head] = source;
 
     // the delay is the ratio of the window to the maximum number of samples
-    double window = this.window.read(delta);
+    double window = this.window.read();
     int delay = (int) (window * (maxSamples - 1));
     if (delay >= maxSamples) delay = maxSamples - 1;
 

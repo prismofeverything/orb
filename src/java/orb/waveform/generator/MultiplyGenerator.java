@@ -17,8 +17,8 @@ public class MultiplyGenerator extends Generator {
   public double generate(double delta) {
     this.time += delta;
 
-    double x = this.x.read(delta);
-    double y = this.y.read(delta);
+    double x = this.x.read();
+    double y = this.y.read();
 
     return x * y;
   }

@@ -17,8 +17,8 @@ public class AddGenerator extends Generator {
   public double generate(double delta) {
     this.time += delta;
 
-    double a = this.a.read(delta);
-    double b = this.b.read(delta);
+    double a = this.a.read();
+    double b = this.b.read();
 
     return a + b;
   }

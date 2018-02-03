@@ -12,6 +12,7 @@ import javax.sound.midi.MidiUnavailableException;
 
 import orb.event.Event;
 import orb.event.PrintEvent;
+import orb.waveform.generator.KeyGenerator;
 
 public class Keyboard implements Receiver {
   public MidiDevice keyboard;
@@ -22,7 +23,7 @@ public class Keyboard implements Receiver {
   public static int NOTE_ON_STATUS = 144;
   public static int NOTE_OFF_STATUS = 128;
 
-  public Keyboard(String key) {
+  public Keyboard(String key, int voices) {
     try {
       MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
 

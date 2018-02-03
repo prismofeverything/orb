@@ -43,7 +43,7 @@ public class Emit {
       int available = line.available() / SAMPLE_SIZE;
 
       for (int i = 0; i < available; i++) {
-        sample = generator.generate(Generator.SAMPLE_INTERVAL);
+        sample = generator.cycle(Generator.SAMPLE_INTERVAL);
         buffer.putShort((short) (Short.MAX_VALUE * signal * sample));
         time += Generator.SAMPLE_INTERVAL;
 

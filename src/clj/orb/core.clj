@@ -42,6 +42,6 @@
   (Emit/at generator t))
 
 (defn keyboard
-  []
-  (Keyboard. "Digital Piano"))
+  [voices]
+  (Keyboard. "Digital Piano" voices))
 

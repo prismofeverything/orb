@@ -25,17 +25,13 @@ public class SineGenerator extends Generator {
   public double generate(double delta) {
     this.time += delta;
 
-    double frequency = this.frequency.read(delta);
-    double amplitude = this.amplitude.read(delta);
+    double frequency = this.frequency.read();
+    double amplitude = this.amplitude.read();
 
     this.acceleration = -frequency * frequency * this.position;
     this.velocity += delta * this.acceleration;
     this.position += delta * this.velocity;
 
     return position * amplitude;
-  }
-
-  public String toString() {
-    return String.format("p = %f, v = %f, a = %f", this.position, this.velocity, this.acceleration);
   }
 }

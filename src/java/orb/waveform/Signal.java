@@ -19,6 +19,7 @@ public class Signal implements Runnable {
 
   public Generator generator;
   public boolean running;
+  public boolean playing;
   public double time;
   public Thread thread;
   public SourceDataLine line;
@@ -29,7 +30,7 @@ public class Signal implements Runnable {
   public Signal(Generator generator) {
     this.generator = generator;
     this.time = 0;
-    this.running = false;
+    this.playing = false;
 
     try {
       this.format = new AudioFormat(Generator.SAMPLING_RATE, 16, 1, true, true);
@@ -55,11 +56,10 @@ public class Signal implements Runnable {
       double signal = 0;
       double sample = 0;
 
-      // while (this.running || signal > 0) {
-      while (true) {
+      while (this.running || signal > 0) {
         this.buffer.clear();
 
-        if (!this.running) {
+        if (!this.playing) {
           signal -= SIGNAL_STEP;
           if (signal < 0) signal = 0;
         } else if (signal < 1) {
@@ -85,10 +85,13 @@ public class Signal implements Runnable {
   }
 
   public void start() {
+    this.running = true;
     this.thread.start();
   }
 
   public void stop() {
+    this.running = false;
+    this.playing = false;
     try {
       this.thread.interrupt();
       this.line.drain();                                         
@@ -99,11 +102,15 @@ public class Signal implements Runnable {
   }
 
   public void onset() {
-    this.running = true;
+    this.playing = true;
   }
 
   public void offset() {
-    this.running = false;
+    this.playing = false;
+  }
+
+  public void swap(Generator generator) {
+    this.generator = generator;
   }
 }
 

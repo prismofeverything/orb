@@ -2,7 +2,7 @@
   (:require
    [orb.midi :as midi])
   (:import
-   [orb.waveform Emit Generator]
+   [orb.waveform Emit Signal Generator]
    [orb.event Keyboard Event PrintEvent]
    [orb.waveform.generator
     AddGenerator
@@ -37,11 +37,32 @@
   [source window max]
   (DelayGenerator. (const? source) (const? window) max))
 
-(defn emit
-  [generator t]
-  (Emit/at generator t))
-
 (defn keyboard
   [voices]
   (Keyboard. "Digital Piano" voices))
 
+(defn emit
+  [generator t]
+  (Emit/at generator t))
+
+(defn signal
+  [generator]
+  (let [signal (Signal. generator)]
+    (.start signal)
+    signal))
+
+(defn signal-on
+  [signal]
+  (.onset signal))
+
+(defn signal-off
+  [signal]
+  (.offset signal))
+
+(defn signal-stop
+  [signal]
+  (.stop signal))
+
+(defn swap-generator
+  [signal generator]
+  (.swap signal generator))

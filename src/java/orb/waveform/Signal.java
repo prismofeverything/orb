@@ -7,20 +7,24 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.LineUnavailableException;
 
-import orb.waveform.Generator;
 import orb.event.Event;
+import orb.waveform.Generator;
+import orb.waveform.generator.ConstantGenerator;
 
 public class Signal implements Runnable {
   public final static int SAMPLE_SIZE = 2;
 
   // number of samples for level onset and offset ramps
-  public final static double SIGNAL_STEPS = 1000;
+  public final static double SIGNAL_STEPS = 100000;
   public final static double SIGNAL_STEP = 1.0 / SIGNAL_STEPS;
 
   public Generator generator;
   public boolean running;
   public boolean playing;
   public double time;
+  public double signal;
+  public double crossover;
+  public Generator previous;
   public Thread thread;
   public SourceDataLine line;
   public DataLine.Info info;
@@ -30,7 +34,11 @@ public class Signal implements Runnable {
   public Signal(Generator generator) {
     this.generator = generator;
     this.time = 0;
+    this.running = false;
     this.playing = false;
+    this.crossover = 0;
+    this.signal = 0;
+    this.previous = new ConstantGenerator(0);
 
     try {
       this.format = new AudioFormat(Generator.SAMPLING_RATE, 16, 1, true, true);
@@ -53,25 +61,40 @@ public class Signal implements Runnable {
 
   public void run() {
     try {
-      double signal = 0;
       double sample = 0;
+      double previous = 0;
+      this.playing = true;
 
-      while (this.running || signal > 0) {
+      while (this.running || this.signal > 0) {
         this.buffer.clear();
 
         if (!this.playing) {
-          signal -= SIGNAL_STEP;
-          if (signal < 0) signal = 0;
-        } else if (signal < 1) {
-          signal += SIGNAL_STEP;
-          if (signal > 1) signal = 1;
+          this.signal -= SIGNAL_STEP;
+          if (this.signal < 0) this.signal = 0;
+        } else if (this.signal < 1) {
+          this.signal += SIGNAL_STEP;
+          if (this.signal > 1) this.signal = 1;
         } 
+
+        if (this.crossover > 0) {
+          this.signal = 0;
+          this.crossover -= SIGNAL_STEP;
+          if (this.crossover < 0) {
+            this.crossover = 0;
+            this.previous = new ConstantGenerator(0);
+          }
+        }
 
         int available = this.line.available() / SAMPLE_SIZE;
 
         for (int i = 0; i < available; i++) {
-          sample = this.generator.cycle(Generator.SAMPLE_INTERVAL);
-          this.buffer.putShort((short) (Short.MAX_VALUE * signal * sample));
+          sample = this.signal * this.generator.cycle(Generator.SAMPLE_INTERVAL);
+          if (this.crossover > 0) {
+            sample = this.previous.cycle(Generator.SAMPLE_INTERVAL);
+            sample += this.crossover * previous;
+          }
+
+          this.buffer.putShort((short) (Short.MAX_VALUE * sample));
           this.time += Generator.SAMPLE_INTERVAL;
         }
 
@@ -92,6 +115,7 @@ public class Signal implements Runnable {
   public void stop() {
     this.running = false;
     this.playing = false;
+
     try {
       this.thread.interrupt();
       this.line.drain();                                         
@@ -110,7 +134,10 @@ public class Signal implements Runnable {
   }
 
   public void swap(Generator generator) {
+    this.previous = this.generator;
     this.generator = generator;
+    this.crossover = this.signal;
+    this.signal = 0;
   }
 }
 

@@ -101,10 +101,10 @@ public class Keyboard implements Receiver, Event {
 
   public void noteOn(int tone, int energy, long time) {
     int keyIndex = 0;
-    Key key = this.keys.get(keyIndex);
+    Key key = this.key(keyIndex);
     while (key.on && keyIndex < this.keys.size() - 1) {
       keyIndex++;
-      key = this.keys.get(keyIndex);
+      key = this.key(keyIndex);
     }
 
     if (!key.on) {
@@ -114,13 +114,14 @@ public class Keyboard implements Receiver, Event {
 
   public void noteOff(int tone, long time) {
     int keyIndex = 0;
-    Key key = this.keys.get(keyIndex);
+    Key key = this.key(keyIndex);
     while (key.on && keyIndex < this.keys.size() - 1) {
       if (key.tone.tone == tone) {
         key.noteOff(tone, time);
       }
+
       keyIndex++;
-      key = this.keys.get(keyIndex);
+      key = this.key(keyIndex);
     }
   }
 

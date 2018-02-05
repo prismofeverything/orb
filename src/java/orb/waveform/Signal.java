@@ -15,7 +15,7 @@ public class Signal implements Runnable {
   public final static int SAMPLE_SIZE = 2;
 
   // number of samples for level onset and offset ramps
-  public final static double SIGNAL_STEPS = 100000;
+  public final static double SIGNAL_STEPS = 10000;
   public final static double SIGNAL_STEP = 1.0 / SIGNAL_STEPS;
 
   public Generator generator;
@@ -24,6 +24,7 @@ public class Signal implements Runnable {
   public double time;
   public double signal;
   public double crossover;
+  public boolean crossing;
   public Generator previous;
   public Thread thread;
   public SourceDataLine line;
@@ -37,6 +38,7 @@ public class Signal implements Runnable {
     this.running = false;
     this.playing = false;
     this.crossover = 0;
+    this.crossing = false;
     this.signal = 0;
     this.previous = new ConstantGenerator(0);
 
@@ -63,34 +65,35 @@ public class Signal implements Runnable {
     try {
       double sample = 0;
       double previous = 0;
+      boolean crossing = false;
       this.playing = true;
 
       while (this.running || this.signal > 0) {
         this.buffer.clear();
 
-        if (!this.playing) {
-          this.signal -= SIGNAL_STEP;
-          if (this.signal < 0) this.signal = 0;
-        } else if (this.signal < 1) {
-          this.signal += SIGNAL_STEP;
-          if (this.signal > 1) this.signal = 1;
-        } 
-
-        if (this.crossover > 0) {
-          this.signal = 0;
-          this.crossover -= SIGNAL_STEP;
-          if (this.crossover < 0) {
-            this.crossover = 0;
-            this.previous = new ConstantGenerator(0);
-          }
-        }
-
         int available = this.line.available() / SAMPLE_SIZE;
 
         for (int i = 0; i < available; i++) {
+          if (!this.playing) {
+            this.signal -= SIGNAL_STEP;
+            if (this.signal < 0) this.signal = 0;
+          } else if (this.signal < 1) {
+            this.signal += SIGNAL_STEP;
+            if (this.signal > 1) this.signal = 1;
+          } 
+
+          if (this.crossing) {
+            this.crossover -= SIGNAL_STEP;
+            if (this.crossover < 0) {
+              this.crossover = 0;
+              this.crossing = false;
+              this.previous = new ConstantGenerator(0);
+            }
+          }
+
           sample = this.signal * this.generator.cycle(Generator.SAMPLE_INTERVAL);
-          if (this.crossover > 0) {
-            sample = this.previous.cycle(Generator.SAMPLE_INTERVAL);
+          if (this.crossing) {
+            previous = this.previous.cycle(Generator.SAMPLE_INTERVAL);
             sample += this.crossover * previous;
           }
 
@@ -137,6 +140,7 @@ public class Signal implements Runnable {
     this.previous = this.generator;
     this.generator = generator;
     this.crossover = this.signal;
+    this.crossing = true;
     this.signal = 0;
   }
 }

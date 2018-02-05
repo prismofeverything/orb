@@ -14,9 +14,10 @@ import orb.event.Event;
 import orb.event.PrintEvent;
 import orb.waveform.generator.KeyGenerator;
 
-public class Keyboard implements Receiver {
+public class Keyboard implements Receiver, Event {
   public MidiDevice keyboard;
   public Transmitter transmit;
+  public Vector<Key> keys;
   public Vector<Event> events;
   public Map<Integer, Integer> on;
 
@@ -24,6 +25,15 @@ public class Keyboard implements Receiver {
   public static int NOTE_OFF_STATUS = 128;
 
   public Keyboard(String key, int voices) {
+    this.keys = new Vector<Key>();
+    for (int voice = 0; voice < voices; voice++) {
+      this.keys.add(new Key());
+    }
+
+    this.on = new HashMap<Integer, Integer>();
+    this.events = new Vector<Event>();
+    this.events.add(new PrintEvent());
+
     try {
       MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
 
@@ -39,9 +49,6 @@ public class Keyboard implements Receiver {
         }  
       }
 
-      this.on = new HashMap<Integer, Integer>();
-      this.events = new Vector<Event>();
-      this.events.add(new PrintEvent());
       this.transmit = this.keyboard.getTransmitter();
       this.transmit.setReceiver(this);
     } catch (MidiUnavailableException e) {
@@ -90,5 +97,34 @@ public class Keyboard implements Receiver {
         event.noteOff(bytes[1], timestamp);
       }
     }
+  }
+
+  public void noteOn(int tone, int energy, long time) {
+    int keyIndex = 0;
+    Key key = this.keys.get(keyIndex);
+    while (key.on && keyIndex < this.keys.size() - 1) {
+      keyIndex++;
+      key = this.keys.get(keyIndex);
+    }
+
+    if (!key.on) {
+      key.noteOn(tone, energy, time);
+    }
+  }
+
+  public void noteOff(int tone, long time) {
+    int keyIndex = 0;
+    Key key = this.keys.get(keyIndex);
+    while (key.on && keyIndex < this.keys.size() - 1) {
+      if (key.tone.tone == tone) {
+        key.noteOff(tone, time);
+      }
+      keyIndex++;
+      key = this.keys.get(keyIndex);
+    }
+  }
+
+  public Key key(int key) {
+    return this.keys.get(key);
   }
 }

@@ -37,10 +37,6 @@
   [source window max]
   (DelayGenerator. (const? source) (const? window) max))
 
-(defn keyboard
-  [voices]
-  (Keyboard. "Digital Piano" voices))
-
 (defn emit
   [generator t]
   (Emit/at generator t))
@@ -66,3 +62,19 @@
 (defn swap-generator
   [signal generator]
   (.swap signal generator))
+
+(defn keyboard
+  [voices]
+  (Keyboard. "Digital Piano" voices))
+
+(defn key
+  [keyboard voice]
+  (.key keyboard voice))
+
+(defn tone
+  [keyboard voice]
+  (.tone (.key keyboard voice)))
+
+(defn energy
+  [keyboard voice]
+  (.energy (.key keyboard voice)))

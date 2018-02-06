@@ -88,11 +88,13 @@ public class Keyboard implements Receiver, Event {
 
     if (message.getStatus() == NOTE_ON_STATUS) {
       this.on.put((int) bytes[1], (int) bytes[2]);
+      this.noteOn(bytes[1], bytes[2], timestamp);
       for (Event event: this.events) {
         event.noteOn(bytes[1], bytes[2], timestamp);
       }
     } else if (message.getStatus() == NOTE_OFF_STATUS) {
       this.on.remove((int) bytes[1]);
+      this.noteOff(bytes[1], timestamp);
       for (Event event: this.events) {
         event.noteOff(bytes[1], timestamp);
       }

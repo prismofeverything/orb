@@ -1,15 +1,19 @@
 (ns orb.core
   (:require
+   [orb.tonality :as tonality]
    [orb.midi :as midi])
   (:import
    [orb.waveform Emit Signal Generator]
    [orb.event Keyboard Event PrintEvent]
+   [orb.tonality Tonality]
    [orb.waveform.generator
     AddGenerator
+    MixGenerator
     SineGenerator
     DelayGenerator
+    ConstantGenerator
     MultiplyGenerator
-    ConstantGenerator]))
+    TonalityGenerator]))
 
 (defn const?
   [x]
@@ -37,6 +41,10 @@
   [source window max]
   (DelayGenerator. (const? source) (const? window) max))
 
+(defn mix
+  [channels]
+  (MixGenerator. channels))
+
 (defn emit
   [generator t]
   (Emit/at generator t))
@@ -63,10 +71,6 @@
   [signal generator]
   (.swap signal generator))
 
-(defn keyboard
-  [voices]
-  (Keyboard. "Digital Piano" voices))
-
 (defn key
   [keyboard voice]
   (.key keyboard voice))
@@ -78,3 +82,26 @@
 (defn energy
   [keyboard voice]
   (.energy (.key keyboard voice)))
+
+(defn tonality
+  [tones root frequency]
+  (Tonality. tones root frequency))
+
+(defn key-tonality
+  [keyboard tonality]
+  (let [voices
+        (for [key (.keys keyboard)]
+          (let [tone (TonalityGenerator. tonality (.tone key))]
+            (sine tone (.energy key))))]
+    (mix voices)))
+
+(defn keyboard
+  [voices]
+  (let [board (Keyboard. "Digital Piano" voices)]
+    (.power board)
+    board))
+
+(def nineteen
+  (tonality
+   (tonality/equal-temperament 19)
+   40 500.0))

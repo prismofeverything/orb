@@ -20,13 +20,13 @@ public class Key implements Event {
 
   public void noteOn(int tone, int energy, long time) {
     this.on = true;
-    this.tone.intone(tone, energy);
-    this.energy.intone(tone, energy);
+    this.tone.noteOn(tone, energy, time);
+    this.energy.noteOn(tone, energy, time);
   }
 
   public void noteOff(int tone, long time) {
     this.on = false;
-    this.tone.cease(tone);
-    this.energy.cease(tone);
+    this.tone.noteOff(tone, time);
+    this.energy.noteOff(tone, time);
   }
 }

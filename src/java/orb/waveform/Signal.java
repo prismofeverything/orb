@@ -51,9 +51,10 @@ public class Signal implements Runnable {
       }
 
       this.line = (SourceDataLine) AudioSystem.getLine(info);
-      this.line.open(format);
+      this.line.open(format, 4410);
       this.line.start();
-      this.buffer = ByteBuffer.allocate(line.getBufferSize());
+      this.buffer = ByteBuffer.allocate(this.line.getBufferSize());
+      System.out.printf("buffer size %d", this.line.getBufferSize());
 
       this.thread = new Thread(this);
     } catch (Exception e) {
@@ -97,13 +98,16 @@ public class Signal implements Runnable {
             sample += this.crossover * previous;
           }
 
+          if (sample > 1) sample = 1;
+          if (sample < -1) sample = -1;
+
           this.buffer.putShort((short) (Short.MAX_VALUE * sample));
           this.time += Generator.SAMPLE_INTERVAL;
         }
 
         this.line.write(this.buffer.array(), 0, this.buffer.position());
-        while (this.line.getBufferSize() / 2 < this.line.available())
-          Thread.sleep(1);
+        // while (this.line.getBufferSize() / 2 < this.line.available())
+        //   Thread.sleep(1);
       }
     } catch (Exception e) {
       e.printStackTrace();

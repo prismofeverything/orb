@@ -14,7 +14,6 @@ public class ToneGenerator extends Generator implements Event {
   }
 
   public void noteOn(int tone, int energy, long time) {
-    System.out.printf("TONE: note on %d", tone);
     this.tone = tone;
     this.energy = energy;
   }

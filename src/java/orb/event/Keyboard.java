@@ -77,14 +77,14 @@ public class Keyboard implements Receiver, Event {
   }
 
   public void send(MidiMessage message, long timestamp) {
-    HashMap<String, Integer> values = new HashMap<String, Integer>();
-    int length = message.getLength();
+    // HashMap<String, Integer> values = new HashMap<String, Integer>();
+    // int length = message.getLength();
     byte[] bytes = message.getMessage();
-    values.put("length", message.getLength());
-    values.put("status", message.getStatus());
-    for (int i = 0; i < length; i++) {
-      values.put(Integer.toString(i), (int) bytes[i]);
-    }
+    // values.put("length", message.getLength());
+    // values.put("status", message.getStatus());
+    // for (int i = 0; i < length; i++) {
+    //   values.put(Integer.toString(i), (int) bytes[i]);
+    // }
 
     if (message.getStatus() == NOTE_ON_STATUS) {
       this.on.put((int) bytes[1], (int) bytes[2]);
@@ -115,15 +115,17 @@ public class Keyboard implements Receiver, Event {
   }
 
   public void noteOff(int tone, long time) {
-    int keyIndex = 0;
-    Key key = this.key(keyIndex);
-    while (keyIndex < this.keys.size() - 1) {
+    // int keyIndex = 0;
+    // Key key = this.key(keyIndex);
+    // while (int k = 0; k < this.keys.size(); k++) {
+
+    for (Key key: this.keys) {
       if (key.tone.tone == tone) {
         key.noteOff(tone, time);
       }
 
-      keyIndex++;
-      key = this.key(keyIndex);
+      // keyIndex++;
+      // key = this.key(keyIndex);
     }
   }
 

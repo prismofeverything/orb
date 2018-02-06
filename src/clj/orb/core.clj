@@ -11,6 +11,7 @@
     MixGenerator
     SineGenerator
     DelayGenerator
+    SmoothGenerator
     ConstantGenerator
     MultiplyGenerator
     TonalityGenerator]))
@@ -91,8 +92,9 @@
   [keyboard tonality]
   (let [voices
         (for [key (.keys keyboard)]
-          (let [tone (TonalityGenerator. tonality (.tone key))]
-            (sine tone (.energy key))))]
+          (let [tone (TonalityGenerator. tonality (.tone key))
+                energy (SmoothGenerator. (.energy key) Signal/SIGNAL_STEP)]
+            (sine tone energy)))]
     (mix voices)))
 
 (defn keyboard

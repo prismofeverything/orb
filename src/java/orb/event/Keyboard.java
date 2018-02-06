@@ -117,7 +117,7 @@ public class Keyboard implements Receiver, Event {
   public void noteOff(int tone, long time) {
     int keyIndex = 0;
     Key key = this.key(keyIndex);
-    while (key.on && keyIndex < this.keys.size() - 1) {
+    while (keyIndex < this.keys.size() - 1) {
       if (key.tone.tone == tone) {
         key.noteOff(tone, time);
       }

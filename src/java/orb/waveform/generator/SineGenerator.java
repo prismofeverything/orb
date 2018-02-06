@@ -32,6 +32,11 @@ public class SineGenerator extends Generator {
     this.velocity += delta * this.acceleration;
     this.position += delta * this.velocity;
 
+    if (this.position > 1) {
+      this.velocity *= 1.0 / this.position;
+      this.position = 1;
+    }
+
     return position * amplitude;
   }
 }

@@ -125,4 +125,4 @@
 (def nineteen
   (tonality
    (tonality/equal-temperament 19)
-   57 440.0))
+   40 100.0))

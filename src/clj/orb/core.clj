@@ -1,16 +1,20 @@
 (ns orb.core
   (:require
    [orb.tonality :as tonality]
+   [orb.table :as table]
    [orb.midi :as midi])
   (:import
+   [orb.tonality Tonality]
    [orb.waveform Emit Signal Generator]
    [orb.event Keyboard Event PrintEvent]
-   [orb.tonality Tonality]
    [orb.waveform.generator
     AddGenerator
     MixGenerator
+    LineGenerator
     SineGenerator
     DelayGenerator
+    TableGenerator
+    DivideGenerator
     SmoothGenerator
     ConstantGenerator
     MultiplyGenerator
@@ -34,9 +38,17 @@
   [x y]
   (MultiplyGenerator. (const? x) (const? y)))
 
+(defn divide
+  [x y]
+  (DivideGenerator. (const? x) (const? y)))
+
 (defn const
   [value]
   (ConstantGenerator. value))
+
+(defn line
+  [step]
+  (LineGenerator. (const? step)))
 
 (defn delay
   [source window max]
@@ -88,13 +100,20 @@
   [tones root frequency]
   (Tonality. tones root frequency))
 
+(defn table
+  [position samples]
+  (TableGenerator. position samples))
+
 (defn key-tonality
   [keyboard tonality]
   (let [voices
         (for [key (.keys keyboard)]
-          (let [tone (TonalityGenerator. tonality (.tone key))
-                energy (SmoothGenerator. (.energy key) Signal/SIGNAL_STEP)]
-            (sine tone energy)))]
+          (let [tones (TonalityGenerator. tonality (.tone key))
+                energy (SmoothGenerator. (.energy key) Signal/SIGNAL_STEP)
+                index (line (multiply tones Generator/SAMPLE_INTERVAL))
+                sine-table (table/sine-table 1024)]
+            ;; (sine tones energy)
+            (multiply (table index sine-table) energy)))]
     (mix voices)))
 
 (defn keyboard
@@ -106,4 +125,4 @@
 (def nineteen
   (tonality
    (tonality/equal-temperament 19)
-   40 500.0))
+   57 440.0))

@@ -5,12 +5,12 @@ import java.util.Collection;
 
 import orb.waveform.Generator;
 
-public class TableGenerator extends Generator {
+public class StringGenerator extends Generator {
   public Generator position;
   public ArrayList<Double> table;
   public double step;
 
-  public TableGenerator(Generator position, Collection<Double> table) {
+  public StringGenerator(Generator position, Collection<Double> table) {
     super(position);
     this.position = position;
     this.table = new ArrayList<Double>(table);

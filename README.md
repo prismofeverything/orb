@@ -1,14 +1,14 @@
 # orb
 
-A Clojure library designed to ... well, that part is up to you.
+Floating orb soundscape generative light responding entity
 
 ## Usage
 
-FIXME
+> lein repl
 
 ## License
 
-Copyright © 2018 FIXME
+Copyright © 2018 Ryan Spangler
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.

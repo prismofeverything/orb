@@ -28,7 +28,7 @@ driver:
   typename: .serial
   ledtype: WS2812B
   num: 144
-  
+  c_order: GRB
 
 # This is the animation section, which describes how your lights change over
 # time.
@@ -37,7 +37,7 @@ driver:
 
 animation:
   typename: lights.Lights
-  color: goldenrod
+  # length: 144
 
 
 # Here are alternative animation sections that are commented out that you

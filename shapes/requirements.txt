@@ -1,2 +1,3 @@
-solidpython
-viewscad
+bibliopixel==3.4.45
+solidpython==0.4.6
+viewscad==0.2.0

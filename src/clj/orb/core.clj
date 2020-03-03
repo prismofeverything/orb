@@ -126,3 +126,14 @@
   (tonality
    (tonality/equal-temperament 19)
    40 100.0))
+
+(defn run
+  []
+  (let [board (keyboard 13)
+        channels (key-tonality board nineteen)]
+    (signal channels)))
+
+(defn -main
+  []
+  (run)
+  @(promise))

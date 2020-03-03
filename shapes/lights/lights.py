@@ -49,8 +49,12 @@ class Lights(animation.BaseAnimation):
 
     def step_thing(self, amt=1):
         if np.random.sample() < self.flip_threshold:
-            flip = np.random.choice(self.length)
-            self.field[flip] += 0.5
+            flip_start = np.random.choice(self.length)
+            flip_length = np.random.randint(13) + 5
+            flip_range = np.array(range(flip_start, flip_start + flip_length))
+            flip_range %= self.length
+
+            self.field[flip_range] += 0.5
 
         self.field += self.field_increment
         self.field[np.where(self.field < 0)] += 1.0
@@ -74,7 +78,8 @@ class Lights(animation.BaseAnimation):
         self.field = next_field
 
     def step(self, amt=1):
-        self.step_thing(amt)
+        # self.step_chase(amt)
+        self.step_chase(amt)
 
     # pre_run is called right before the animation starts running.
     def pre_run(self):

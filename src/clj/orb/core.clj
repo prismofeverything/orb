@@ -124,7 +124,9 @@
 
 (def nineteen
   (tonality
-   (tonality/equal-temperament 19)
+   (map double tonality/overtone-nineteen)
+   ;; (map double tonality/pure-nineteen)
+   ;; (tonality/equal-temperament 19)
    40 100.0))
 
 (defn run

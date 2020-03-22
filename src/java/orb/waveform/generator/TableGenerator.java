@@ -21,7 +21,7 @@ public class TableGenerator extends Generator {
     double position = this.table.size() * this.position.read();
 
     long below = (long) Math.floor(position);
-    long above = below + 1; // (long) Math.ceil(position);
+    long above = below + 1;
     if (above == this.table.size()) above = 0;
 
     double before = this.table.get((int) below);
@@ -29,6 +29,7 @@ public class TableGenerator extends Generator {
     double between = position - below;
     double within = after - before;
 
+    // linear interpolation
     return before + (between * within);
   }
 }

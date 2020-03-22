@@ -17,6 +17,7 @@
     DivideGenerator
     SmoothGenerator
     ConstantGenerator
+    ConvolveGenerator
     MultiplyGenerator
     TonalityGenerator]))
 
@@ -53,6 +54,10 @@
 (defn delay
   [source window max]
   (DelayGenerator. (const? source) (const? window) max))
+
+(defn convolve
+  [source kernel]
+  (ConvolveGenerator. source kernel))
 
 (defn mix
   [channels]
@@ -111,9 +116,11 @@
           (let [tones (TonalityGenerator. tonality (.tone key))
                 energy (SmoothGenerator. (.energy key) Signal/SIGNAL_STEP)
                 index (line (multiply tones Generator/SAMPLE_INTERVAL))
-                sine-table (table/sine-table 1024)]
+                sine-table (table/sine-table 1024)
+                sine-index (table index sine-table)
+                voice (convolve sine-index [1.0])]
             ;; (sine tones energy)
-            (multiply (table index sine-table) energy)))]
+            (multiply voice energy)))]
     (mix voices)))
 
 (defn keyboard

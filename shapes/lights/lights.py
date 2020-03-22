@@ -79,7 +79,7 @@ class Lights(animation.BaseAnimation):
 
     def step(self, amt=1):
         # self.step_chase(amt)
-        self.step_chase(amt)
+        self.step_thing(amt)
 
     # pre_run is called right before the animation starts running.
     def pre_run(self):

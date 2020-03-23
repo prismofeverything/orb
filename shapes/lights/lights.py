@@ -42,7 +42,8 @@ class Lights(animation.BaseAnimation):
 
         self.previous_point = 0
         self.point = np.random.randint(self.length)
-        self.point_max = np.array([1.0, 1.0, 1.0])
+        self.point_max = np.array([0.7, 1.0, 1.0])
+        self.point_min = self.point_max * np.array([1.0, 1.0, 0.0])
         self.vertical = 41
         self.vertical_next = self.vertical + 1
         self.directions = [
@@ -50,14 +51,19 @@ class Lights(animation.BaseAnimation):
             -self.vertical, -self.vertical_next,
             self.vertical, self.vertical_next]
 
-        self.delay = 10
+        self.delay = 5
         self.cycle = self.delay
         self.delta = (1.0 / self.delay) * np.array([0.0, 0.0, 1.0])
 
         self.goal = self.point
 
-        if self.mode == 'point':
-            self.field[self.point][:] = (1.0, 1.0, 1.0)
+        self.chain = []
+        self.chain_length = 5
+        for link in range(self.chain_length):
+            self.chain.append(self.point)
+
+        if self.mode == 'point' or self.mode == 'chain':
+            self.field[self.point][:] = self.point_max
 
     def render_field(self):
         for pixel in range(self.length):
@@ -132,18 +138,46 @@ class Lights(animation.BaseAnimation):
                 if self.point + direction >= 0 and self.point + direction < self.length]
 
             self.goal = np.random.choice(valid_directions)
-            self.field[self.goal][:] = (1.0, 1.0, 0.0)
+            self.field[self.goal][:] = self.point_min
 
+        self.render_field()
 
-            # self.color_list[self.point] = (0, 0, 0)
-            # self.color_list[choice] = (127, 127, 127)
-            # self.point = choice
+    def step_chain(self, amt=1):
+        if self.cycle < self.delay:
+            self.cycle += 1
+            if not self.point in self.chain:
+                self.field[self.point][:] -= self.delta
+            if not self.goal in self.chain:
+                self.field[self.goal][:] += self.delta
+        else:
+            self.cycle = 0
+
+            if not self.point in self.chain:
+                self.field[self.point][:] = np.zeros(self.point_max.shape)
+
+            self.point = self.chain[0]
+            self.chain = self.chain[1:]
+            self.chain.append(self.goal)
+
+            # self.point = self.goal
+            self.field[self.point][:] = self.point_max
+
+            valid_directions = [
+                self.goal + direction
+                for direction in self.directions
+                if self.goal + direction >= 0 and self.goal + direction < self.length and not self.goal + direction in self.chain]
+
+            self.goal = np.random.choice(valid_directions)
+            self.field[self.goal][:] = self.point_min
+
+            for link in self.chain:
+                self.field[link] = self.point_max
 
         self.render_field()
 
     def step(self, amt=1):
         if self.mode == 'point':
-            self.step_point(amt)
+            self.step_chain(amt)
         elif self.mode == 'decimal':
             self.step_decimal(amt)
         elif self.mode == 'chase':

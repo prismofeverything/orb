@@ -1,0 +1,6 @@
+>>> spanglry@youdonotexist:~/Downloads/reaper_linux_x86_64$ pacmd
+Welcome to PulseAudio 11.1! Use "help" for usage information.
+>>> load-module module-jack-sink
+>>> load-module module-jack-source
+
+qjackctl

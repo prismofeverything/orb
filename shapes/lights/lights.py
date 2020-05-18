@@ -11,12 +11,23 @@ You can edit this as you like, add and remove fields and
 write Python code in general.
 """
 
-class Lights(animation.BaseAnimation):
+class Note(object):
     def __init__(
-            self, *args,
+            self,
+            *args,
+            # note=0,
+            **kwds):
+        # self.note = note
+        import ipdb; ipdb.set_trace()
+
+class Lights(animation.BaseAnimation):
+# class Lights(animation.BaseGameAnim):
+    def __init__(
+            self,
+            *args,
             #################
 
-            # length=10,
+            mode='point',
 
             #################
             **kwds):
@@ -25,7 +36,7 @@ class Lights(animation.BaseAnimation):
 
         ###############################33
 
-        self.mode = 'point'
+        self.mode = mode
 
         self.length = 144 # length
 
@@ -41,10 +52,11 @@ class Lights(animation.BaseAnimation):
         ################################33
 
         self.previous_point = 0
-        self.point = np.random.randint(self.length)
+        self.starting_point = 60
+        # self.point = np.random.randint(self.length)
         self.point_max = np.array([0.7, 1.0, 1.0])
         self.point_min = self.point_max * np.array([1.0, 1.0, 0.0])
-        self.vertical = 41
+        self.vertical = 30
         self.vertical_next = self.vertical + 1
         self.directions = [
             -1, 1,
@@ -52,18 +64,62 @@ class Lights(animation.BaseAnimation):
             self.vertical, self.vertical_next]
 
         self.delay = 5
-        self.cycle = self.delay
         self.delta = (1.0 / self.delay) * np.array([0.0, 0.0, 1.0])
 
-        self.goal = self.point
+        self.chain_length = 1
 
-        self.chain = []
-        self.chain_length = 5
-        for link in range(self.chain_length):
-            self.chain.append(self.point)
+        self.clear_field()
 
         if self.mode == 'point' or self.mode == 'chain':
             self.field[self.point][:] = self.point_max
+
+        ################## keyboard
+
+        def change_mode(x):
+            print(x)
+            self.mode == 'thing'
+
+        this = self
+
+        self.modes = [
+            'chase',
+            'point',
+            'thing',
+            'vertical',
+            'stillness',
+            'freeze']
+
+        self.leave_modes = [
+            'freeze']
+
+        def make_note(note):
+            def do_note(velocity):
+                if velocity > 0:
+                    mode_index = note % len(self.modes)
+                    this.mode = self.modes[mode_index]
+                    if this.mode not in this.leave_modes:
+                        this.clear_field()
+
+                print(note)
+                print(velocity)
+
+            return do_note
+
+        self.notes = {
+            x: make_note(x)
+            for x in range(127)}
+
+    def clear_field(self):
+        self.cycle = self.delay
+        self.point = self.starting_point
+        self.goal = self.point
+        self.chain = []
+        for link in range(self.chain_length):
+            self.chain.append(self.point)
+
+        for pixel in range(self.length):
+            self.field[pixel] = (0, 0, 0)
+            self.color_list[pixel] = (0, 0, 0)
 
     def render_field(self):
         for pixel in range(self.length):
@@ -73,6 +129,9 @@ class Lights(animation.BaseAnimation):
                 int(hsv[1] * 255),
                 int(hsv[2] * 255)))
             self.color_list[pixel] = rgb
+
+    def stillness(self, amt=1):
+        pass
 
     def step_chase(self, amt=1):
         this_pixel = self.cur_step % len(self.color_list)
@@ -113,9 +172,9 @@ class Lights(animation.BaseAnimation):
 
         self.render_field()
 
-    def step_decimal(self, amt=1):
+    def step_vertical(self, amt=1):
         for pixel in range(self.length):
-            if pixel % 42 == 6:
+            if pixel % self.vertical == 0:
                 b = 128
                 brightness = (b, b, b)
                 self.color_list[pixel] = brightness
@@ -176,10 +235,12 @@ class Lights(animation.BaseAnimation):
         self.render_field()
 
     def step(self, amt=1):
-        if self.mode == 'point':
+        if self.mode == 'stillness' or self.mode == 'freeze':
+            self.stillness(amt)
+        elif self.mode == 'point':
             self.step_chain(amt)
-        elif self.mode == 'decimal':
-            self.step_decimal(amt)
+        elif self.mode == 'vertical':
+            self.step_vertical(amt)
         elif self.mode == 'chase':
             self.step_chase(amt)
         elif self.mode == 'thing':

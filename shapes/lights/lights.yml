@@ -37,12 +37,41 @@ driver:
 
 animation:
   typename: lights.Lights
-  # length: 144
+  mode: 'point'
+
+controls:
+  typename: midi
+  extractor:
+    keys_by_type:
+      note_on: ['note', 'velocity']
+      note_off: ['note', 'velocity']
+
+  routing:
+    36: animation.notes[36]()
+    37: animation.notes[37]()
+    38: animation.notes[38]()
+    39: animation.notes[39]()
+    40: animation.notes[40]()
+    41: animation.notes[41]()
+
+
+
+# controls:
+#   typename: keyboard
+#   verbose: true
+#   extractor:
+#     accept:
+#       type: press
+
+#   routing:
+#     1: 'animation.mode = "chase"'
+#     2: 'animation.mode = "point"'
+#     3: 'animation.mode = "thing"'
+#     4: 'animation.mode = "vertical"'
 
 
 # Here are alternative animation sections that are commented out that you
 # could edit and use.
-
 
 # # Here's the animation section for a looping sequence of animations, each 10
 # # seconds long.

@@ -3,6 +3,8 @@ package orb.event;
 import java.util.Map;
 import java.util.Vector;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiMessage;
@@ -20,11 +22,14 @@ public class Keyboard implements Receiver, Event {
   public Vector<Key> keys;
   public Vector<Event> events;
   public Map<Integer, Integer> on;
+  public Pattern pattern;
 
   public static int NOTE_ON_STATUS = 144;
   public static int NOTE_OFF_STATUS = 128;
 
   public Keyboard(String key, int voices) {
+    this.pattern = Pattern.compile(key, Pattern.CASE_INSENSITIVE);
+
     this.keys = new Vector<Key>();
     for (int voice = 0; voice < voices; voice++) {
       this.keys.add(new Key());
@@ -38,8 +43,12 @@ public class Keyboard implements Receiver, Event {
       MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
 
       for (MidiDevice.Info info: infos) {
+        
         System.out.println(info.getName() + " ? " + key);
-        if (info.getName().equals(key)) {
+        String name = info.getName();
+        Matcher matcher = pattern.matcher(name);
+        boolean match = matcher.find();
+        if (match) {
           MidiDevice device = MidiSystem.getMidiDevice(info);
           int transmitters = device.getMaxTransmitters();
           System.out.println(transmitters);
@@ -47,6 +56,10 @@ public class Keyboard implements Receiver, Event {
             this.keyboard = device;
           }
         }  
+      }
+
+      if (this.keyboard == null) {
+        throw new MidiUnavailableException("no devices with the name" + key);
       }
 
       this.transmit = this.keyboard.getTransmitter();

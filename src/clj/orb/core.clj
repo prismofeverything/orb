@@ -125,7 +125,7 @@
 
 (defn keyboard
   [voices]
-  (let [board (Keyboard. "Digital Piano" voices)]
+  (let [board (Keyboard. "piano" voices)]
     (.power board)
     board))
 

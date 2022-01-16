@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+WHERE=$1
+
+DEVICE=/dev/sda1
+MOUNT=/media/youdonotexist/recorder/
+
+sudo mount -t vfat $DEVICE $MOUNT -o uid=1000
+rsync -avltr $MOUNT/MSSONY/HIFI/ $WHERE
+
+find $WHERE -type f -iname "*.wav" -exec sh -c 'bn=${1##*/}; bn=${bn%.*}; out="${0}${bn}.flac"; if [ ! -f $out ]; then ffmpeg -loglevel 1 -i "$1" "${out}"; fi' $WHERE/flac/ {} \;
+
+sudo umount $MOUNT
+
+NAMES=`find $WHERE -type f -iname "*.wav" -exec ls {} \; | sed -e "s_$WHERE/[^/]*/\(.*\).WAV_$WHERE/flac/\1.flac_g"`
+echo $NAMES

@@ -42,12 +42,14 @@ public class Keyboard implements Receiver, Event {
     try {
       MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
 
+      System.out.println("looking for " + key);
       for (MidiDevice.Info info: infos) {
         
-        System.out.println(info.getName() + " ? " + key);
         String name = info.getName();
         Matcher matcher = pattern.matcher(name);
         boolean match = matcher.find();
+        System.out.println(name);
+
         if (match) {
           MidiDevice device = MidiSystem.getMidiDevice(info);
           int transmitters = device.getMaxTransmitters();
@@ -59,13 +61,14 @@ public class Keyboard implements Receiver, Event {
       }
 
       if (this.keyboard == null) {
-        throw new MidiUnavailableException("no devices with the name" + key);
+        throw new MidiUnavailableException("no devices with the name " + key);
       }
 
       this.transmit = this.keyboard.getTransmitter();
       this.transmit.setReceiver(this);
     } catch (MidiUnavailableException e) {
       System.out.println("MIDI UNAVAILABLE WHAT");
+      e.printStackTrace();
     }
   }
 

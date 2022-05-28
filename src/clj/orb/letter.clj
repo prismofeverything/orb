@@ -1,16 +1,17 @@
 (ns orb.letter
-  (:require
-   [lanterna.terminal :as terminal]))
+  (:import [jline.console ConsoleReader]))
 
 (defn listen
   [letter-map]
-  (let [terminal (terminal/get-terminal)]
-    (loop [letter (terminal/get-key-blocking terminal)]
-      (do 
-        (println letter)
-        (terminal/stop terminal)
-        letter))))
+  (print "yo")
+  (flush)
+  (let [reader (ConsoleReader.)]
+    (loop [letter (.readCharacter reader)]
+      (if-let [letterfn (get letter-map letter)]
+        (do
+          (letterfn)
+          (recur (.readCharacter reader)))))))
 
 (defn -main
   []
-  (listen {}))
+  (listen {97 (fn [] (println "key 97 woo"))}))

@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.Line;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.LineUnavailableException;
 
@@ -45,6 +46,7 @@ public class Signal implements Runnable {
     try {
       this.format = new AudioFormat(Generator.SAMPLING_RATE, 16, 1, true, true);
       this.info = new DataLine.Info(SourceDataLine.class, this.format);
+      this.listAudioFormats();
 
       if (!AudioSystem.isLineSupported(this.info)) {
         System.out.println("Line matching " + this.info + " is not supported");
@@ -59,6 +61,24 @@ public class Signal implements Runnable {
       this.thread = new Thread(this);
     } catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+
+  public void listAudioFormats() {
+    Line.Info desired = new Line.Info(SourceDataLine.class);
+    Line.Info[] infos = AudioSystem.getSourceLineInfo(desired);
+
+    for (Line.Info info : infos) {
+      if (info instanceof DataLine.Info) {
+	AudioFormat[] forms = ((DataLine.Info) info).getFormats();
+	for (AudioFormat format : forms) {
+	  System.out.println(format);
+	}
+      }
+      else {
+	  System.out.println("info not an instance of Dataline.info");
+	  System.out.println(info);
+      }
     }
   }
 

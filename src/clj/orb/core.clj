@@ -136,11 +136,18 @@
    ;; (tonality/equal-temperament 19)
    40 100.0))
 
-(defn run
+(defn run-keyboard
   []
   (let [board (keyboard 13)
         channels (key-tonality board nineteen)]
     (signal channels)))
+
+(defn run
+  []
+  (let [index (line (* Generator/SAMPLE_INTERVAL 440))
+        sine-table (table/sine-table 1024)
+        sine-index (table index sine-table)]
+    (signal sine-index)))
 
 (defn -main
   []

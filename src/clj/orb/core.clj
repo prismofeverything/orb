@@ -67,9 +67,14 @@
   [generator t]
   (Emit/at generator t))
 
-(defn signal
+(defn make-signal
   [generator]
   (let [signal (Signal. generator)]
+    signal))
+
+(defn signal!
+  [generator]
+  (let [signal (make-signal generator)]
     (.start signal)
     signal))
 
@@ -140,14 +145,14 @@
   []
   (let [board (keyboard 13)
         channels (key-tonality board nineteen)]
-    (signal channels)))
+    (signal! channels)))
 
-(defn run
-  []
-  (let [index (line (* Generator/SAMPLE_INTERVAL 440))
+(defn play-sine
+  [frequency]
+  (let [index (line (* Generator/SAMPLE_INTERVAL frequency))
         sine-table (table/sine-table 1024)
         sine-index (table index sine-table)]
-    (signal sine-index)))
+    (signal! sine-index)))
 
 (defn -main
   []

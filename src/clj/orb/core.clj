@@ -108,7 +108,7 @@
 
 (defn tonality
   [tones root frequency]
-  (Tonality. tones root frequency))
+  (Tonality. (map double tones) root frequency))
 
 (defn table
   [position samples]
@@ -136,9 +136,10 @@
 
 (def nineteen
   (tonality
-   (map double tonality/overtone-nineteen)
+   tonality/overtone-nineteen
    ;; (map double tonality/pure-nineteen)
    ;; (tonality/equal-temperament 19)
+
    40 100.0))
 
 (defn run-keyboard
@@ -147,14 +148,18 @@
         channels (key-tonality board nineteen)]
     (signal! channels)))
 
-(defn play-sine
+(defn make-sine
   [frequency]
   (let [index (line (* Generator/SAMPLE_INTERVAL frequency))
         sine-table (table/sine-table 1024)
         sine-index (table index sine-table)]
-    (signal! sine-index)))
+    sine-index))
+
+(defn play-sine
+  [frequency]
+  (signal! (make-sine frequency)))
 
 (defn -main
   []
-  (run)
+  (play-sine 440)
   @(promise))

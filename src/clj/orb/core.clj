@@ -130,17 +130,15 @@
 
 (defn keyboard
   [voices]
-  (let [board (Keyboard. "piano" voices)]
+  (let [board (Keyboard. "CASIO USB-MIDI" voices)]
     (.power board)
     board))
 
 (def nineteen
   (tonality
-   tonality/overtone-nineteen
-   ;; (map double tonality/pure-nineteen)
-   ;; (tonality/equal-temperament 19)
 
-   40 100.0))
+   (map double tonality/overtone-nineteen)
+   48 440.0))
 
 (defn run-keyboard
   []

@@ -44,7 +44,8 @@ public class Keyboard implements Receiver, Event {
 
       System.out.println("looking for " + key);
       for (MidiDevice.Info info: infos) {
-        
+        System.out.println("MIDI info:");
+        System.out.println(info.getName());
         String name = info.getName();
         Matcher matcher = pattern.matcher(name);
         boolean match = matcher.find();

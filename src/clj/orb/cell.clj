@@ -1,5 +1,20 @@
 (ns orb.cell)
 
+(def neighbor-kernel
+  (apply 
+   concat 
+   (for [x (range -1 2)] 
+     (for [y (range -1 2)] 
+       [x y]))))
+
+(defn adjacent-cells
+  [[width height] [x y]]
+  (map
+   (fn [[dx dy]]
+     [(mod (+ x dx) width)
+      (mod (+ y dy) height)])
+   neighbor-kernel))
+
 (defn build-cells 
   [dimensions initial-state]
   (let [width (first dimensions) 
@@ -23,5 +38,8 @@
 
 (defn -main
   []
-  (println
-   (make-world [5 5] [0 1])))
+  (let [dimensions [3 3]
+        world (make-world dimensions [0 1])]
+    (println world)
+    (println (adjacent-cells dimensions [0 1]))
+   ))

@@ -129,8 +129,8 @@
     (mix voices)))
 
 (defn keyboard
-  [voices]
-  (let [board (Keyboard. "piano" voices)]
+  [device voices]
+  (let [board (Keyboard. device voices)]
     (.power board)
     board))
 
@@ -139,12 +139,11 @@
    tonality/overtone-nineteen
    ;; (map double tonality/pure-nineteen)
    ;; (tonality/equal-temperament 19)
-
-   40 100.0))
+   19 100.0))
 
 (defn run-keyboard
-  []
-  (let [board (keyboard 13)
+  [device]
+  (let [board (keyboard device 13)
         channels (key-tonality board nineteen)]
     (signal! channels)))
 
@@ -160,6 +159,7 @@
   (signal! (make-sine frequency)))
 
 (defn -main
-  []
-  (play-sine 440)
+  [& args]
+  ;; (play-sine 440)
+  (run-keyboard (first args))
   @(promise))

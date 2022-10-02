@@ -26,6 +26,9 @@ public class Keyboard implements Receiver, Event {
 
   public static int NOTE_ON_STATUS = 144;
   public static int NOTE_OFF_STATUS = 128;
+  public static int AFTERTOUCH_STATUS = 160;
+  public static int CONTROL_STATUS = 176;
+  public static int PRESSURE_STATUS = 224;
 
   public Keyboard(String key, int voices) {
     this.pattern = Pattern.compile(key, Pattern.CASE_INSENSITIVE);
@@ -94,6 +97,13 @@ public class Keyboard implements Receiver, Event {
 
   public void send(MidiMessage message, long timestamp) {
     byte[] bytes = message.getMessage();
+    int messageLength = message.getLength();
+    String messageOutput = "";
+    for (int segment = 0; segment < messageLength; segment++) {
+      messageOutput += bytes[segment] + " ";
+    }
+    
+    System.out.println("message received: " + message.getStatus() + " - " + messageOutput);
 
     if (message.getStatus() == NOTE_ON_STATUS) {
       this.on.put((int) bytes[1], (int) bytes[2]);

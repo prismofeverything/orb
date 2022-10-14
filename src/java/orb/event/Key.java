@@ -32,5 +32,5 @@ public class Key implements Event {
 
   public void control(int channel, long time, int control, int data) {};
   public void pressure(int channel, long time, int pressure) {};
-  public void pitch(int channel, long time, int base, int detail) {};
+  public void pitch(int channel, long time, int pitch) {};
 }

@@ -96,6 +96,18 @@ public class Keyboard implements Receiver, Event {
     return 0;
   }
 
+  public int translatePitch(int major, int minor) {
+    int pitch = 0;
+    if (major < 64) {
+      pitch = major * 128;
+    } else {
+      pitch = (major - 128) * 128;
+    }
+    pitch += minor;
+
+    return pitch;
+  }
+
   public void send(MidiMessage message, long timestamp) {
     byte[] bytes = message.getMessage();
     int messageLength = message.getLength();
@@ -143,9 +155,10 @@ public class Keyboard implements Receiver, Event {
       }
     } else if (status == PITCH_STATUS) {
       // this.state.remove(control);
-      this.pitch(channel, timestamp, control, data);
+      int pitch = this.translatePitch(data, control);
+      this.pitch(channel, timestamp, pitch);
       for (Event event: this.events) {
-        event.pitch(channel, timestamp, control, data);
+        event.pitch(channel, timestamp, pitch);
       }
     }
   }
@@ -173,7 +186,7 @@ public class Keyboard implements Receiver, Event {
 
   public void control(int channel, long time, int control, int data) {};
   public void pressure(int channel, long time, int pressure) {};
-  public void pitch(int channel, long time, int base, int detail) {};
+  public void pitch(int channel, long time, int pitch) {};
 
   public Key key(int key) {
     return this.keys.get(key);

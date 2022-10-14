@@ -21,7 +21,7 @@ public class PrintEvent implements Event {
     System.out.println("pressure! " + time + " - " + channel + ": " + pressure);
   }
 
-  public void pitch(int channel, long time, int base, int detail) {
-    System.out.println("pitch!    " + time + " - " + channel + ": " + base + " + " + detail);
+  public void pitch(int channel, long time, int pitch) {
+    System.out.println("pitch!    " + time + " - " + channel + ": " + pitch);
   }
 }

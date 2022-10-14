@@ -13,6 +13,7 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.MidiUnavailableException;
 
 import orb.event.Event;
+import orb.event.Key;
 import orb.event.PrintEvent;
 import orb.waveform.generator.KeyGenerator;
 
@@ -21,14 +22,14 @@ public class Keyboard implements Receiver, Event {
   public Transmitter transmit;
   public Vector<Key> keys;
   public Vector<Event> events;
-  public Map<Integer, Integer> on;
+  public Map<Integer, Integer> state;
   public Pattern pattern;
 
-  public static int NOTE_ON_STATUS = 144;
-  public static int NOTE_OFF_STATUS = 128;
-  public static int AFTERTOUCH_STATUS = 160;
-  public static int CONTROL_STATUS = 176;
-  public static int PRESSURE_STATUS = 224;
+  public static int ON_STATUS = 9;
+  public static int OFF_STATUS = 8;
+  public static int CONTROL_STATUS = 11;
+  public static int PRESSURE_STATUS = 13;
+  public static int PITCH_STATUS = 14;
 
   public Keyboard(String key, int voices) {
     this.pattern = Pattern.compile(key, Pattern.CASE_INSENSITIVE);
@@ -38,7 +39,7 @@ public class Keyboard implements Receiver, Event {
       this.keys.add(new Key());
     }
 
-    this.on = new HashMap<Integer, Integer>();
+    this.state = new HashMap<Integer, Integer>();
     this.events = new Vector<Event>();
     this.events.add(new PrintEvent());
 
@@ -98,29 +99,58 @@ public class Keyboard implements Receiver, Event {
   public void send(MidiMessage message, long timestamp) {
     byte[] bytes = message.getMessage();
     int messageLength = message.getLength();
-    String messageOutput = "";
-    for (int segment = 0; segment < messageLength; segment++) {
-      messageOutput += bytes[segment] + " ";
-    }
-    
-    System.out.println("message received: " + message.getStatus() + " - " + messageOutput);
 
-    if (message.getStatus() == NOTE_ON_STATUS) {
-      this.on.put((int) bytes[1], (int) bytes[2]);
-      this.noteOn(bytes[1], bytes[2], timestamp);
+    // String messageOutput = "";
+    // for (int segment = 0; segment < messageLength; segment++) {
+    //   messageOutput += bytes[segment] + " ";
+    // }
+    
+    // System.out.println("message received: " + message.getStatus() + " - " + messageOutput);
+
+    int code = message.getStatus();
+    int status = code / 16;
+    int channel = code % 16;
+    int control = bytes[1];
+    int data = 0;
+
+    if (messageLength > 2) {
+      data = bytes[2];
+    }
+
+    if (status == ON_STATUS) {
+      this.state.put(control, data);
+      this.on(channel, timestamp, control, data);
       for (Event event: this.events) {
-        event.noteOn(bytes[1], bytes[2], timestamp);
+        event.on(channel, timestamp, control, data);
       }
-    } else if (message.getStatus() == NOTE_OFF_STATUS) {
-      this.on.remove((int) bytes[1]);
-      this.noteOff(bytes[1], timestamp);
+    } else if (status == OFF_STATUS) {
+      this.state.remove(control);
+      this.off(channel, timestamp, control);
       for (Event event: this.events) {
-        event.noteOff(bytes[1], timestamp);
+        event.off(channel, timestamp, control);
+      }
+    } else if (status == CONTROL_STATUS) {
+      // this.state.remove(control);
+      this.control(channel, timestamp, control, data);
+      for (Event event: this.events) {
+        event.control(channel, timestamp, control, data);
+      }
+    } else if (status == PRESSURE_STATUS) {
+      // this.state.remove(control);
+      this.pressure(channel, timestamp, control);
+      for (Event event: this.events) {
+        event.pressure(channel, timestamp, control);
+      }
+    } else if (status == PITCH_STATUS) {
+      // this.state.remove(control);
+      this.pitch(channel, timestamp, control, data);
+      for (Event event: this.events) {
+        event.pitch(channel, timestamp, control, data);
       }
     }
   }
 
-  public void noteOn(int tone, int energy, long time) {
+  public void on(int channel, long time, int tone, int velocity) {
     int keyIndex = 0;
     Key key = this.key(keyIndex);
     while (key.on && keyIndex < this.keys.size() - 1) {
@@ -129,17 +159,21 @@ public class Keyboard implements Receiver, Event {
     }
 
     if (!key.on) {
-      key.noteOn(tone, energy, time);
+      key.on(channel, time, tone, velocity);
     }
   }
 
-  public void noteOff(int tone, long time) {
+  public void off(int channel, long time, int tone) {
     for (Key key: this.keys) {
       if (key.tone.tone == tone) {
-        key.noteOff(tone, time);
+        key.off(channel, time, tone);
       }
     }
   }
+
+  public void control(int channel, long time, int control, int data) {};
+  public void pressure(int channel, long time, int pressure) {};
+  public void pitch(int channel, long time, int base, int detail) {};
 
   public Key key(int key) {
     return this.keys.get(key);

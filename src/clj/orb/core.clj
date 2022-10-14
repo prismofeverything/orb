@@ -102,9 +102,9 @@
   [keyboard voice]
   (.tone (.key keyboard voice)))
 
-(defn energy
+(defn velocity
   [keyboard voice]
-  (.energy (.key keyboard voice)))
+  (.velocity (.key keyboard voice)))
 
 (defn tonality
   [tones root frequency]
@@ -119,13 +119,13 @@
   (let [voices
         (for [key (.keys keyboard)]
           (let [tones (TonalityGenerator. tonality (.tone key))
-                energy (SmoothGenerator. (.energy key) Signal/SIGNAL_STEP)
+                velocity (SmoothGenerator. (.velocity key) Signal/SIGNAL_STEP)
                 index (line (multiply tones Generator/SAMPLE_INTERVAL))
                 sine-table (table/sine-table 1024)
                 sine-index (table index sine-table)
                 voice (convolve sine-index [1.0])]
-            ;; (sine tones energy)
-            (multiply voice energy)))]
+            ;; (sine tones velocity)
+            (multiply voice velocity)))]
     (mix voices)))
 
 (defn keyboard

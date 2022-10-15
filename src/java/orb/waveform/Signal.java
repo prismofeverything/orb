@@ -70,14 +70,14 @@ public class Signal implements Runnable {
 
     for (Line.Info info : infos) {
       if (info instanceof DataLine.Info) {
-	AudioFormat[] forms = ((DataLine.Info) info).getFormats();
-	for (AudioFormat format : forms) {
-	  System.out.println(format);
-	}
+        AudioFormat[] forms = ((DataLine.Info) info).getFormats();
+        for (AudioFormat format : forms) {
+          System.out.println(format);
+        }
       }
       else {
-	  System.out.println("info not an instance of Dataline.info");
-	  System.out.println(info);
+        System.out.println("info not an instance of Dataline.info");
+        System.out.println(info);
       }
     }
   }

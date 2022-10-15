@@ -69,15 +69,17 @@
   (Emit/at generator t))
 
 (defn make-signal
-  [generator]
-  (let [signal (Signal. generator)]
-    signal))
+  ([generator] (make-signal generator ""))
+  ([generator output-path]
+   (let [signal (Signal. generator output-path)]
+     signal)))
 
 (defn signal!
-  [generator]
-  (let [signal (make-signal generator)]
-    (.start signal)
-    signal))
+  ([generator] (signal! generator ""))
+  ([generator output-path]
+   (let [signal (make-signal generator output-path)]
+     (.start signal)
+     signal)))
 
 (defn signal-on
   [signal]
@@ -144,10 +146,13 @@
    19 100.0))
 
 (defn run-keyboard
-  [device]
-  (let [board (keyboard device 13)
-        channels (key-tonality board nineteen)]
-    (signal! channels)))
+  ([device] (run-keyboard device nil))
+  ([device output-path]
+   (let [board (keyboard device 13)
+         channels (key-tonality board nineteen)]
+     (if output-path
+       (signal! channels output-path)
+       (signal! channels)))))
 
 (defn make-sine
   [frequency]
@@ -163,5 +168,9 @@
 (defn -main
   [& args]
   ;; (play-sine 440)
-  (run-keyboard (first args))
-  @(promise))
+  (let [device (or (first args) "MIDI")
+        output-path (second args)]
+    (if output-path
+      (run-keyboard device output-path)
+      (run-keyboard device))
+    @(promise)))

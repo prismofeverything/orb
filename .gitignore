@@ -12,3 +12,4 @@ pom.xml.asc
 .python-version
 .ipynb_checkpoints
 __pycache__
+/out

@@ -1,5 +1,8 @@
 package orb.waveform;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 import java.nio.ByteBuffer;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioFormat;
@@ -22,6 +25,7 @@ public class Signal implements Runnable {
   public Generator generator;
   public boolean running;
   public boolean playing;
+  public boolean writing;
   public double time;
   public double signal;
   public double crossover;
@@ -32,18 +36,29 @@ public class Signal implements Runnable {
   public DataLine.Info info;
   public AudioFormat format;
   public ByteBuffer buffer;
+  public FileOutputStream output;
 
   public Signal(Generator generator) {
+    this(generator, "");
+  }
+
+  public Signal(Generator generator, String outputFilename) {
     this.generator = generator;
     this.time = 0;
     this.running = false;
     this.playing = false;
+    this.writing = false;
     this.crossover = 0;
     this.crossing = false;
     this.signal = 0;
     this.previous = new ConstantGenerator(0);
 
     try {
+      if (outputFilename != "") {
+        this.output = new FileOutputStream(outputFilename);
+        this.writing = true;
+      }
+
       this.format = new AudioFormat(Generator.SAMPLING_RATE, 16, 1, true, true);
       this.info = new DataLine.Info(SourceDataLine.class, this.format);
       this.listAudioFormats();
@@ -125,9 +140,12 @@ public class Signal implements Runnable {
           this.time += Generator.SAMPLE_INTERVAL;
         }
 
-        this.line.write(this.buffer.array(), 0, this.buffer.position());
-        // while (this.line.getBufferSize() / 2 < this.line.available())
-        //   Thread.sleep(1);
+        byte[] bytes = this.buffer.array();
+        this.line.write(bytes, 0, this.buffer.position());
+
+        if (this.writing) {
+          this.output.write(bytes, 0, this.buffer.position());
+        }
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -147,6 +165,8 @@ public class Signal implements Runnable {
       this.thread.interrupt();
       this.line.drain();                                         
       this.line.close();
+      this.output.flush();
+      this.output.close();
     } catch (Exception e) {
       e.printStackTrace();
     }

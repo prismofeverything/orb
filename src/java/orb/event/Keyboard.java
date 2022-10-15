@@ -14,6 +14,7 @@ import javax.sound.midi.MidiUnavailableException;
 
 import orb.event.Event;
 import orb.event.Key;
+import orb.event.KeyState;
 import orb.event.PrintEvent;
 import orb.waveform.generator.KeyGenerator;
 
@@ -22,7 +23,7 @@ public class Keyboard implements Receiver, Event {
   public Transmitter transmit;
   public Vector<Key> keys;
   public Vector<Event> events;
-  public Map<Integer, Integer> state;
+  public Map<Integer, KeyState> state;
   public Pattern pattern;
 
   public static int ON_STATUS = 9;
@@ -30,6 +31,7 @@ public class Keyboard implements Receiver, Event {
   public static int CONTROL_STATUS = 11;
   public static int PRESSURE_STATUS = 13;
   public static int PITCH_STATUS = 14;
+  public static int TOTAL_CHANNELS = 8;
 
   public Keyboard(String key, int voices) {
     this.pattern = Pattern.compile(key, Pattern.CASE_INSENSITIVE);
@@ -39,9 +41,13 @@ public class Keyboard implements Receiver, Event {
       this.keys.add(new Key());
     }
 
-    this.state = new HashMap<Integer, Integer>();
+    this.state = new HashMap<Integer, KeyState>();
+    for (int channel = 0; channel < TOTAL_CHANNELS; channel++) {
+      this.state.put(channel, new KeyState(channel));
+    }
+
     this.events = new Vector<Event>();
-    this.events.add(new PrintEvent());
+    // this.events.add(new PrintEvent());
 
     try {
       MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
@@ -130,40 +136,39 @@ public class Keyboard implements Receiver, Event {
     }
 
     if (status == ON_STATUS) {
-      this.state.put(control, data);
       this.on(channel, timestamp, control, data);
       for (Event event: this.events) {
         event.on(channel, timestamp, control, data);
       }
     } else if (status == OFF_STATUS) {
-      this.state.remove(control);
       this.off(channel, timestamp, control);
       for (Event event: this.events) {
         event.off(channel, timestamp, control);
       }
     } else if (status == CONTROL_STATUS) {
-      // this.state.remove(control);
       this.control(channel, timestamp, control, data);
       for (Event event: this.events) {
         event.control(channel, timestamp, control, data);
       }
     } else if (status == PRESSURE_STATUS) {
-      // this.state.remove(control);
       this.pressure(channel, timestamp, control);
       for (Event event: this.events) {
         event.pressure(channel, timestamp, control);
       }
     } else if (status == PITCH_STATUS) {
-      // this.state.remove(control);
       int pitch = this.translatePitch(data, control);
       this.pitch(channel, timestamp, pitch);
       for (Event event: this.events) {
         event.pitch(channel, timestamp, pitch);
       }
     }
+
+    System.out.println(this.state.get(channel).toString());
   }
 
   public void on(int channel, long time, int tone, int velocity) {
+    this.state.get(channel).on(channel, time, tone, velocity);
+
     int keyIndex = 0;
     Key key = this.key(keyIndex);
     while (key.on && keyIndex < this.keys.size() - 1) {
@@ -177,6 +182,8 @@ public class Keyboard implements Receiver, Event {
   }
 
   public void off(int channel, long time, int tone) {
+    this.state.get(channel).off(channel, time, tone);
+
     for (Key key: this.keys) {
       if (key.tone.tone == tone) {
         key.off(channel, time, tone);
@@ -184,9 +191,17 @@ public class Keyboard implements Receiver, Event {
     }
   }
 
-  public void control(int channel, long time, int control, int data) {};
-  public void pressure(int channel, long time, int pressure) {};
-  public void pitch(int channel, long time, int pitch) {};
+  public void control(int channel, long time, int control, int data) {
+    this.state.get(channel).control(channel, time, control, data);
+  };
+
+  public void pressure(int channel, long time, int pressure) {
+    this.state.get(channel).pressure(channel, time, pressure);
+  };
+
+  public void pitch(int channel, long time, int pitch) {
+    this.state.get(channel).pitch(channel, time, pitch);
+  };
 
   public Key key(int key) {
     return this.keys.get(key);

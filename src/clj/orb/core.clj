@@ -131,12 +131,12 @@
                 velocity (SmoothGenerator. (.velocity key) Signal/SIGNAL_STEP)
                 index (line (multiply bend Generator/SAMPLE_INTERVAL))
 
-                ;; sine-table (table/sine-table 1024)
-                ;; sine-index (table index sine-table)
-                ;; voice (convolve sine-index [1.0])
+                sine-table (table/sine-table 1024)
+                sine-index (table index sine-table)
+                voice (convolve sine-index [1.0])
 
-                pluck-index (pluck index (.tone key) 150)
-                voice (convolve pluck-index [0.5 0.3 0.2])
+                ;; pluck-index (pluck index (.tone key) 150)
+                ;; voice (convolve pluck-index [1.0])
 
                 ]
 

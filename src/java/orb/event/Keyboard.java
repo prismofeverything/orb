@@ -220,6 +220,12 @@ public class Keyboard implements Receiver, Event {
 
   public void pitch(int channel, long time, int pitch) {
     this.state.get(channel).pitch(channel, time, pitch);
+
+    List<Integer> tones = this.state.get(channel).tonesOn();
+    List<Key> keys = this.findKeys(tones);
+    for (Key key: keys) {
+      key.pitch(channel, time, pitch);
+    }
   };
 
   public Key key(int key) {

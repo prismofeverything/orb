@@ -5,29 +5,34 @@ import orb.event.Keyboard;
 import orb.waveform.Generator;
 import orb.waveform.generator.ToneGenerator;
 import orb.waveform.generator.VelocityGenerator;
+import orb.waveform.generator.BendGenerator;
 
 public class Key implements Event {
   public boolean on;
   public ToneGenerator tone;
   public VelocityGenerator velocity;
+  public ToneGenerator pitch;
 
   public Key() {
     super();
     this.on = false;
     this.tone = new ToneGenerator();
     this.velocity = new VelocityGenerator();
+    this.pitch = new ToneGenerator("pitch");
   }
 
   public void on(int channel, long time, int tone, int velocity) {
     this.on = true;
     this.tone.on(channel, time, tone, velocity);
     this.velocity.on(channel, time, tone, velocity);
+    this.pitch.on(channel, time, tone, velocity);
   }
 
   public void off(int channel, long time, int tone) {
     this.on = false;
     this.tone.off(channel, time, tone);
     this.velocity.off(channel, time, tone);
+    this.pitch.off(channel, time, tone);
   }
 
   public void control(int channel, long time, int control, int data) {};
@@ -40,5 +45,7 @@ public class Key implements Event {
     }
   };
 
-  public void pitch(int channel, long time, int pitch) {};
+  public void pitch(int channel, long time, int pitch) {
+    this.pitch.pitch(channel, time, pitch);
+  };
 }

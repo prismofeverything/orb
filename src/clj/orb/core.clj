@@ -9,6 +9,7 @@
    [orb.event Keyboard Event PrintEvent]
    [orb.waveform.generator
     AddGenerator
+    BendGenerator
     MixGenerator
     LineGenerator
     SineGenerator
@@ -119,8 +120,9 @@
   (let [voices
         (for [key (.keys keyboard)]
           (let [tones (TonalityGenerator. tonality (.tone key))
+                bend (BendGenerator. 0.0002 tones (.pitch key))
                 velocity (SmoothGenerator. (.velocity key) Signal/SIGNAL_STEP)
-                index (line (multiply tones Generator/SAMPLE_INTERVAL))
+                index (line (multiply bend Generator/SAMPLE_INTERVAL))
                 sine-table (table/sine-table 1024)
                 sine-index (table index sine-table)
                 voice (convolve sine-index [1.0])]

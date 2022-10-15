@@ -40,7 +40,12 @@ public class ConvolveGenerator extends Generator {
 
     this.samples[this.cursor] = sample;
     for (int head = 0; head < this.kernelLength; head++) {
-      output += this.samples[this.cursor - head] * this.kernel[head];
+      int previous = this.cursor - head;
+      while (previous < 0) {
+        previous += this.kernelLength;
+      }
+
+      output += this.samples[previous] * this.kernel[head];
     }
 
     return output;

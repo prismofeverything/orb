@@ -1,6 +1,9 @@
 package orb.event;
 
 import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -166,6 +169,17 @@ public class Keyboard implements Receiver, Event {
     System.out.println(this.state.get(channel).toString());
   }
 
+  public List<Key> findKeys(List<Integer> tones) {
+    ArrayList<Key> keys = new ArrayList<Key>();
+    for (Key key: this.keys) {
+      if (tones.contains(key.tone.tone)) {
+        keys.add(key);
+      }
+    }
+
+    return keys;
+  }
+
   public void on(int channel, long time, int tone, int velocity) {
     this.state.get(channel).on(channel, time, tone, velocity);
 
@@ -184,10 +198,9 @@ public class Keyboard implements Receiver, Event {
   public void off(int channel, long time, int tone) {
     this.state.get(channel).off(channel, time, tone);
 
-    for (Key key: this.keys) {
-      if (key.tone.tone == tone) {
-        key.off(channel, time, tone);
-      }
+    List<Key> keys = this.findKeys(Arrays.asList(tone));
+    for (Key key: keys) {
+      key.off(channel, time, tone);
     }
   }
 
@@ -197,6 +210,12 @@ public class Keyboard implements Receiver, Event {
 
   public void pressure(int channel, long time, int pressure) {
     this.state.get(channel).pressure(channel, time, pressure);
+
+    List<Integer> tones = this.state.get(channel).tonesOn();
+    List<Key> keys = this.findKeys(tones);
+    for (Key key: keys) {
+      key.pressure(channel, time, pressure);
+    }
   };
 
   public void pitch(int channel, long time, int pitch) {

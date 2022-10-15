@@ -13,7 +13,7 @@ public class KeyState implements Event {
   public long stop;
   public long recent;
   public boolean on;
-  public Map<Integer, Integer> keys;
+  public Map<Integer, Integer> tones;
   public Map<Integer, Integer> controls;
   public int pressure;
   public int pitch;
@@ -23,28 +23,32 @@ public class KeyState implements Event {
     this.start = -1;
     this.stop = -1;
     this.recent = -1;
-    this.keys = new HashMap<Integer, Integer>();
+    this.tones = new HashMap<Integer, Integer>();
     this.controls = new HashMap<Integer, Integer>();
     this.pressure = 0;
     this.pitch = 0;
   }
 
   public boolean isOn() {
-    return this.keys.size() > 0;
+    return this.tones.size() > 0;
   }
 
-  public void on(int channel, long timestamp, int key, int velocity) {
+  public List<Integer> tonesOn() {
+    return new ArrayList<Integer>(this.tones.keySet());
+  }
+
+  public void on(int channel, long timestamp, int tone, int velocity) {
     this.channel = channel;
     this.start = timestamp;
     this.recent = timestamp;
-    this.keys.put(key, velocity);
+    this.tones.put(tone, velocity);
   }
 
-  public void off(int channel, long timestamp, int key) {
+  public void off(int channel, long timestamp, int tone) {
     this.channel = channel;
     this.stop = timestamp;
     this.recent = timestamp;
-    this.keys.remove(key);
+    this.tones.remove(tone);
   }
 
   public void control(int channel, long timestamp, int control, int data) {
@@ -72,13 +76,13 @@ public class KeyState implements Event {
   public String toString() {
     String rep = "channel " + this.channel + ": ";
     if (this.isOn()) {
-      List<String> keyList = new ArrayList<String>();
-      for (Map.Entry<Integer, Integer> entry : this.keys.entrySet()) {
-        keyList.add("" + entry.getKey() + " > " + entry.getValue());
+      List<String> toneList = new ArrayList<String>();
+      for (Map.Entry<Integer, Integer> entry : this.tones.entrySet()) {
+        toneList.add("" + entry.getKey() + " > " + entry.getValue());
       }
-      String keysOn = String.join(" . ", keyList);
+      String tonesOn = String.join(" . ", toneList);
 
-      rep += "keys - " + keysOn + " | ";
+      rep += "tones - " + tonesOn + " | ";
       rep += "pressure - " + this.pressure + " | pitch - " + this.pitch + " | ";
 
       if (this.controls.size() > 0) {

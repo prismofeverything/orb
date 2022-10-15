@@ -31,6 +31,14 @@ public class Key implements Event {
   }
 
   public void control(int channel, long time, int control, int data) {};
-  public void pressure(int channel, long time, int pressure) {};
+
+  public void pressure(int channel, long time, int pressure) {
+    if (pressure > 0) {
+      this.velocity.on(channel, time, this.tone.tone, pressure);
+    } else {
+      this.velocity.off(channel, time, this.tone.tone);
+    }
+  };
+
   public void pitch(int channel, long time, int pitch) {};
 }

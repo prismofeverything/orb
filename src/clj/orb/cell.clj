@@ -1,5 +1,13 @@
 (ns orb.cell)
 
+(defn generate-locations
+  [[width height]]
+  (apply 
+   concat
+   (for [x (range width)]
+     (for [y (range height)]
+       [x y]))))
+
 (def neighbor-kernel
   (apply 
    concat 
@@ -14,6 +22,26 @@
      [(mod (+ x dx) width)
       (mod (+ y dy) height)])
    neighbor-kernel))
+
+(defn build-adjacencies
+  [dimensions]
+  (let [locations (generate-locations dimensions)]
+    (reduce 
+     (fn [adjacencies location]
+       (assoc adjacencies location (adjacent-cells dimensions location)))
+     {} 
+     locations)))
+
+(defn adjacent-states
+  [world location]
+  (let [cells (get world :cells)
+        adjacencies (get world :adjacencies)
+        neighbors (get adjacencies location)]
+    (map 
+     (fn [neighbor-location]
+       (get cells neighbor-location))
+     neighbors)))
+  
 
 (defn build-cells 
   [dimensions initial-state]
@@ -31,15 +59,17 @@
   
 (defn make-world 
   [dimensions states]
-  (let [cells (build-cells dimensions (first states))]
+  (let [cells (build-cells dimensions (first states))
+        adjacencies (build-adjacencies dimensions)]
     {:dimensions dimensions
      :states states
-     :cells cells}))
+     :cells cells
+     :adjacencies adjacencies}))
 
 (defn -main
   []
-  (let [dimensions [3 3]
+  (let [dimensions [6 6]
         world (make-world dimensions [0 1])]
     (println world)
-    (println (adjacent-cells dimensions [0 1]))
-   ))
+    (println (adjacent-cells dimensions [5 5]))))
+   

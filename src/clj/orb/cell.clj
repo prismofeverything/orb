@@ -1,18 +1,24 @@
-(ns orb.cell)
+(ns orb.cell
+  (:require [clojure.string :as string]))
+
+(defn generate-rows
+  [[width height]]
+  (for [y (range height)]
+    (for [x (range width)]
+      [x y])))
+
 
 (defn generate-locations
-  [[width height]]
-  (apply 
+  [dimensions]
+  (apply
    concat
-   (for [x (range width)]
-     (for [y (range height)]
-       [x y]))))
+   (generate-rows dimensions)))
 
 (def neighbor-kernel
-  (apply 
-   concat 
-   (for [x (range -1 2)] 
-     (for [y (range -1 2)] 
+  (apply
+   concat
+   (for [x (range -1 2)]
+     (for [y (range -1 2)]
        [x y]))))
 
 (defn adjacent-cells
@@ -26,10 +32,10 @@
 (defn build-adjacencies
   [dimensions]
   (let [locations (generate-locations dimensions)]
-    (reduce 
+    (reduce
      (fn [adjacencies location]
        (assoc adjacencies location (adjacent-cells dimensions location)))
-     {} 
+     {}
      locations)))
 
 (defn adjacent-states
@@ -37,39 +43,58 @@
   (let [cells (get world :cells)
         adjacencies (get world :adjacencies)
         neighbors (get adjacencies location)]
-    (map 
+    (map
      (fn [neighbor-location]
        (get cells neighbor-location))
      neighbors)))
-  
 
-(defn build-cells 
-  [dimensions initial-state]
-  (let [width (first dimensions) 
+
+(defn build-cells
+  [dimensions seed-fn]
+  (let [width (first dimensions)
         height (last dimensions)]
-    (reduce 
+    (reduce
      (fn [cells x]
-       (reduce 
+       (reduce
         (fn [cells y]
-          (assoc cells [x y] initial-state))
+          (assoc cells [x y] (seed-fn [x y])))
         cells
-        (range height))) 
+        (range height)))
      {}
      (range width))))
-  
-(defn make-world 
-  [dimensions states]
-  (let [cells (build-cells dimensions (first states))
+
+(defn make-world
+  [dimensions states seed-fn]
+  (let [cells (build-cells dimensions seed-fn)
         adjacencies (build-adjacencies dimensions)]
     {:dimensions dimensions
      :states states
      :cells cells
      :adjacencies adjacencies}))
 
+(defn seed-random-state
+  [states]
+  (fn [location]
+    (first (shuffle states))))
+
+(defn print-states
+  [world]
+  (let [dimensions (get world :dimensions)
+        rows (generate-rows dimensions)
+        cells (get world :cells)]
+    (doseq [row rows]
+      (let [states (map (fn [location] (get cells location)) row)
+            line (string/join " " states)]
+        (println line)))))
+
 (defn -main
   []
   (let [dimensions [6 6]
-        world (make-world dimensions [0 1])]
+        states [0 1]
+        world (make-world dimensions states (seed-random-state states))]
     (println world)
-    (println (adjacent-cells dimensions [5 5]))))
-   
+    (println (adjacent-cells dimensions [5 5]))
+    (println (adjacent-states world [1 1]))
+    (print-states world)))
+
+

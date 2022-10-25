@@ -1,12 +1,12 @@
 (ns orb.cell
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            [orb.cell :as cell]))
 
 (defn generate-rows
   [[width height]]
   (for [y (range height)]
     (for [x (range width)]
       [x y])))
-
 
 (defn generate-locations
   [dimensions]
@@ -48,7 +48,6 @@
        (get cells neighbor-location))
      neighbors)))
 
-
 (defn build-cells
   [dimensions seed-fn]
   (let [width (first dimensions)
@@ -87,6 +86,29 @@
             line (string/join " " states)]
         (println line)))))
 
+(defn update-world
+  "Applies update rule to the current world, generating the next world state."
+  [world rule]
+  ;;gets keys from cell map
+  (let [locations (keys (get world :cells))
+        update (reduce
+                (fn [states location]
+                  (let [adjacent (adjacent-states world location)
+                        next-state (rule adjacent)]
+                    (assoc states location next-state)))
+                {}
+                locations)]
+    (assoc world :cells update)))
+
+(defn life-rule
+  [states]
+  (let [center-state (nth states 4)
+         ;; * -1 center-state is to cancel out center-state (the cell being updated).
+        live-adjacencies (reduce + (* -1 center-state) states)]
+    (if (= center-state 0) 
+      (if (= live-adjacencies 3) 1 0)
+      (if (#{2 3} live-adjacencies) 1 0))))
+
 (defn -main
   []
   (let [dimensions [6 6]
@@ -95,6 +117,8 @@
     (println world)
     (println (adjacent-cells dimensions [5 5]))
     (println (adjacent-states world [1 1]))
-    (print-states world)))
+    (print-states world)
+    (println)
+    (print-states (update-world world life-rule))))
 
 

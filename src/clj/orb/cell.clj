@@ -115,10 +115,12 @@
         states [0 1]
         world (make-world dimensions states (seed-random-state states))]
     (println world)
-    (println (adjacent-cells dimensions [5 5]))
-    (println (adjacent-states world [1 1]))
+    (println)
+    ;; (print-world world)
+    (println)
+    ;; (println (adjacent-cells dimensions [5 5]))
+    ;; (println (adjacent-states world [1 1]))
     (print-states world)
     (println)
+
     (print-states (update-world world life-rule))))
-
-

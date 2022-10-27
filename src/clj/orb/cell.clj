@@ -3,12 +3,14 @@
             [orb.cell :as cell]))
 
 (defn generate-rows
+  "Generates a list of coordinates for each row."
   [[width height]]
   (for [y (range height)]
     (for [x (range width)]
       [x y])))
 
 (defn generate-locations
+  "Generates a 'flat' list of all locations."
   [dimensions]
   (apply
    concat
@@ -22,6 +24,11 @@
        [x y]))))
 
 (defn adjacent-cells
+  "Builds list of adjacent cells, including x y.
+   ex (adjacent-cells [4 4] [2 2] )
+   ([1 1] [1 2] [1 3] 
+    [2 1] [2 2] [2 3] 
+    [3 1] [3 2] [3 3])"
   [[width height] [x y]]
   (map
    (fn [[dx dy]]
@@ -30,6 +37,7 @@
    neighbor-kernel))
 
 (defn build-adjacencies
+  "Builds a map of cell location -> adjacent-cells."
   [dimensions]
   (let [locations (generate-locations dimensions)]
     (reduce

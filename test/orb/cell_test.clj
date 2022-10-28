@@ -5,11 +5,16 @@
 (deftest generate-rows-test
   (testing "Generates list of rows."
     (let [rows (cell/generate-rows [4 4])]
+      ;; should be
+    ;;  '(([0 0] [0 1] [0 2] [0 3]) 
+    ;;    ([1 0] [1 1] [1 2] [1 3])
+    ;;    ([2 0] [2 1] [2 2] [2 3])
+    ;;    ([3 0] [3 1] [3 2] [3 3]) 
       (is (= rows '(([0 0] [1 0] [2 0] [3 0]) 
                     ([0 1] [1 1] [2 1] [3 1])
                     ([0 2] [1 2] [2 2] [3 2])
-                    ([0 3] [1 3] [2 3] [3 3])
-                    ))))))
+                    ([0 3] [1 3] [2 3] [3 3])))))))
+                    
 
 ((deftest generate-locations-test
       (testing "Generates flat location list."
@@ -25,10 +30,31 @@
                                   [3 1] [3 2] [3 3])))))))
         
 
-;; ((deftest build-adjacencies-test
-;;       (testing "Context of the test assertions"
-;;         (let [adjacencies (cell/build-adjacencies [2 2])]
-;;           (is (= adjacencies :#{[0 0] '([1 1] [1 0] [1 1] [0 1] [0 0] [0 1] [1 1] [1 0] [1 1]),
-;;                                 [1 0] '([0 1] [0 0] [0 1] [1 1] [1 0] [1 1] [0 1] [0 0] [0 1]),
-;;                                 [0 1] '([1 0] [1 1] [1 0] [0 0] [0 1] [0 0] [1 0] [1 1] [1 0]),
-;;                                 [1 1] '([0 0] [0 1] [0 0] [1 0] [1 1] [1 0] [0 0] [0 1] [0 0])}))))))
+((deftest build-adjacencies-test
+      (testing "Builds map of location -> adjacent locations."
+        (let [adjacencies (cell/build-adjacencies [2 2])]
+          (is (= adjacencies {[0 0] '([1 1] [1 0] [1 1] [0 1] [0 0] [0 1] [1 1] [1 0] [1 1]),
+                              [1 0] '([0 1] [0 0] [0 1] [1 1] [1 0] [1 1] [0 1] [0 0] [0 1]),
+                              [0 1] '([1 0] [1 1] [1 0] [0 0] [0 1] [0 0] [1 0] [1 1] [1 0]),
+                              [1 1] '([0 0] [0 1] [0 0] [1 0] [1 1] [1 0] [0 0] [0 1] [0 0])}))))))
+
+((deftest build-cells-test
+      (testing "Builds map of location -> state."
+        (let [location [2 2]
+              state 5
+              state-seed-func (fn [location] state)
+              cells (cell/build-cells location state-seed-func)]
+        (is (= cells {[0 0] state, [0 1] state, 
+                      [1 0] state, [1 1] state}))))))
+
+((deftest adjacent-states-test
+      (testing "Builds list of neighboring (given location) states, including given location"
+        (let [
+              location [2 2]
+              state 5
+              dimensions [6 6]
+              cells (cell/build-cells dimensions (fn [location] state))
+              adjacent-states (cell/adjacent-states { :cells cells
+                                                      :adjacencies (cell/build-adjacencies dimensions)} location)]
+        ;;Why can't I pass state binding to list literal below?
+          (is (= adjacent-states '(5 5 5 5 5 5 5 5 5 )))))))

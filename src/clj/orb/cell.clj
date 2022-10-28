@@ -37,7 +37,7 @@
    neighbor-kernel))
 
 (defn build-adjacencies
-  "Builds a map of cell location -> adjacent-cells."
+  "Builds a map of cell location -> adjacent locations."
   [dimensions]
   (let [locations (generate-locations dimensions)]
     (reduce
@@ -47,6 +47,7 @@
      locations)))
 
 (defn adjacent-states
+  "Builds list of neighboring states, including given location"
   [world location]
   (let [cells (get world :cells)
         adjacencies (get world :adjacencies)
@@ -57,6 +58,7 @@
      neighbors)))
 
 (defn build-cells
+  "Builds map of location -> state."
   [dimensions seed-fn]
   (let [width (first dimensions)
         height (last dimensions)]

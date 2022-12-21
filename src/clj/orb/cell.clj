@@ -115,22 +115,38 @@
   (let [center-state (nth states 4)
          ;; * -1 center-state is to cancel out center-state (the cell being updated).
         live-adjacencies (reduce + (* -1 center-state) states)]
-    (if (= center-state 0) 
+    (if (= center-state 0)
       (if (= live-adjacencies 3) 1 0)
       (if (#{2 3} live-adjacencies) 1 0))))
 
+(defn binary->number 
+  [digits]
+  (first ;;Pulls decimal-number out of vector produced by reduce (only want the number, not the power)
+   (reduce
+    (fn [[decimal-number power] bit]
+      (let [
+            ;;Convert bit and add to decimal-number 
+            decimal-number-plus-bit (+ decimal-number (* bit power))
+            ;;Prepare power for next iteration
+            power-next-bit (* 2 power)]
+        ;;Return vector for next reduce iteration
+        [decimal-number-plus-bit power-next-bit]))
+    ;;Init values for decimal-number and power
+    [0 1]
+    ;;Reverse binary string, since it will be processed left to right
+    (reverse digits))))
+
 (defn -main
   []
-  (let [dimensions [6 6]
+  (let [dimensions [16 16];;Generate a 256 cell world to represent all values of 8 bit string (from neighbor states)
         states [0 1]
         world (make-world dimensions states (seed-random-state states))]
-    (println world)
-    (println)
-    ;; (print-world world)
-    (println)
-    ;; (println (adjacent-cells dimensions [5 5]))
-    ;; (println (adjacent-states world [1 1]))
     (print-states world)
     (println)
+    (print-states (update-world world life-rule))
+    (println "------")
+    ;; (println (adjacent-states (update-world world life-rule) [16 16]))
+    (println "-------")
+    (println (binary->number [1 0 1 1]))))
+    
 
-    (print-states (update-world world life-rule))))

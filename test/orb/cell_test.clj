@@ -5,11 +5,6 @@
 (deftest generate-rows-test
   (testing "Generates list of rows."
     (let [rows (cell/generate-rows [4 4])]
-      ;; should be
-    ;;  '(([0 0] [0 1] [0 2] [0 3]) 
-    ;;    ([1 0] [1 1] [1 2] [1 3])
-    ;;    ([2 0] [2 1] [2 2] [2 3])
-    ;;    ([3 0] [3 1] [3 2] [3 3]) 
       (is (= rows '(([0 0] [1 0] [2 0] [3 0]) 
                     ([0 1] [1 1] [2 1] [3 1])
                     ([0 2] [1 2] [2 2] [3 2])
@@ -56,5 +51,8 @@
               cells (cell/build-cells dimensions (fn [location] state))
               adjacent-states (cell/adjacent-states { :cells cells
                                                       :adjacencies (cell/build-adjacencies dimensions)} location)]
-        ;;Why can't I pass state binding to list literal below?
           (is (= adjacent-states '(5 5 5 5 5 5 5 5 5 )))))))
+
+((deftest binary->number
+      (testing "Context of the test assertions"
+        (is (= (cell/binary->number [1 0 1 1]) 11)))))

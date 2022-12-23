@@ -53,6 +53,23 @@
                                                       :adjacencies (cell/build-adjacencies dimensions)} location)]
           (is (= adjacent-states '(5 5 5 5 5 5 5 5 5 )))))))
 
-((deftest binary->number
+((deftest binary->number-test
       (testing "Context of the test assertions"
         (is (= (cell/binary->number [1 0 1 1]) 11)))))
+
+((deftest number->binary-test
+      (testing "Context of the test assertions"
+        (is (= (cell/number->binary 11) [1 0 1 1])))))
+
+;;paramatized tests?
+((deftest number->binary->number-9-test
+      (testing "Context of the test assertions"
+        (is (= (cell/binary->number (cell/number->binary 9)) 9)))))
+
+((deftest number->binary->number-0-test
+   (testing "Context of the test assertions"
+     (is (= (cell/binary->number (cell/number->binary 0)) 0)))))
+
+((deftest number->binary->number-1-test
+   (testing "Context of the test assertions"
+     (is (= (cell/binary->number (cell/number->binary 1)) 1)))))

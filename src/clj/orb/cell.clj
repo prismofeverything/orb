@@ -119,13 +119,33 @@
       (if (= live-adjacencies 3) 1 0)
       (if (#{2 3} live-adjacencies) 1 0))))
 
-(defn binary->number 
+(defn exp [x n]
+  (if (zero? n) 1
+      (* x (exp x (dec n)))))
+
+(defn highest-power-of-2 [power number]
+  (let [power-value (exp 2 power)]
+    (if (> number power-value)
+      (highest-power-of-2 (+ power 1) (- number power-value))
+      power)))
+
+(defn number->binary
+  [number]
+  (let [powers (range (+ 1 (highest-power-of-2 0 number)))]
+    (reverse (first (reduce
+                     (fn [[binary-seq number-remaining] power]
+                       (if (>= number-remaining (exp 2 power))
+                         [(cons 1 binary-seq) (- number-remaining (exp 2 power))]
+                         [(cons 0 binary-seq) number-remaining]))
+                     [[] number]
+                     (reverse powers))))))
+
+(defn binary->number
   [digits]
   (first ;;Pulls decimal-number out of vector produced by reduce (only want the number, not the power)
    (reduce
     (fn [[decimal-number power] bit]
-      (let [
-            ;;Convert bit and add to decimal-number 
+      (let [;;Convert bit and add to decimal-number 
             decimal-number-plus-bit (+ decimal-number (* bit power))
             ;;Prepare power for next iteration
             power-next-bit (* 2 power)]
@@ -147,6 +167,19 @@
     (println "------")
     ;; (println (adjacent-states (update-world world life-rule) [16 16]))
     (println "-------")
-    (println (binary->number [1 0 1 1]))))
-    
+    (println "==============")
+    (println (number->binary 0))
+    (println (number->binary 1))
+    (println (number->binary 2))
+    (println (number->binary 3))
+    (println (number->binary 4))
+    (println (number->binary 5))
+    (println (number->binary 6))
+    (println (number->binary 7))
+    (println (number->binary 8))
+    (println (number->binary 9))
+
+    ))
+
+
 

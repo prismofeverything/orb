@@ -104,7 +104,7 @@
         update (reduce
                 (fn [states location]
                   (let [adjacent (adjacent-states world location)
-                        next-state (rule adjacent)]
+                        next-state (rule adjacent world)]
                     (assoc states location next-state)))
                 {}
                 locations)]
@@ -156,30 +156,40 @@
     ;;Reverse binary string, since it will be processed left to right
     (reverse digits))))
 
+(defn self-ref-rule
+  [states world]
+  (let [dimensions (get world :dimensions)
+        states-vec (into [] states)
+        states-vec-no-center (into (subvec states-vec 0 4) (subvec states-vec (inc 4)))
+        rule-key (binary->number states-vec-no-center)
+        cells (get world :cells)
+        rule-key-location [(quot rule-key (first dimensions)) (mod rule-key (first dimensions))]]
+    (get cells rule-key-location)))
+
 (defn -main
   []
   (let [dimensions [16 16];;Generate a 256 cell world to represent all values of 8 bit string (from neighbor states)
         states [0 1]
         world (make-world dimensions states (seed-random-state states))]
-    (print-states world)
-    (println)
-    (print-states (update-world world life-rule))
-    (println "------")
-    ;; (println (adjacent-states (update-world world life-rule) [16 16]))
-    (println "-------")
-    (println "==============")
-    (println (number->binary 0))
-    (println (number->binary 1))
-    (println (number->binary 2))
-    (println (number->binary 3))
-    (println (number->binary 4))
-    (println (number->binary 5))
-    (println (number->binary 6))
-    (println (number->binary 7))
-    (println (number->binary 8))
-    (println (number->binary 9))
-
-    ))
+    ;; (println world)
+    (let [s1 world
+          s2 (update-world s1 self-ref-rule)
+          s3 (update-world s2 self-ref-rule)
+          s4 (update-world s3 self-ref-rule)
+          s5 (update-world s4 self-ref-rule)
+          s6 (update-world s5 self-ref-rule)]
+      (print-states s1)
+      (println "---------")
+      (print-states s2)
+      (println "---------")
+      (print-states s3)
+      (println "---------")
+      (print-states s4)
+      (println "---------")
+      (print-states s5)
+      (println "---------")
+      (print-states s6)
+      (println "---------"))))
 
 
 

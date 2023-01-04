@@ -141,55 +141,67 @@
                      (reverse powers))))))
 
 (defn binary->number
-  [digits]
-  (first ;;Pulls decimal-number out of vector produced by reduce (only want the number, not the power)
+  [binary]
+  ;; Pulls decimal-number out of vector produced by reduce (only want the number, not the power).
+  (first 
    (reduce
-    (fn [[decimal-number power] bit]
-      (let [;;Convert bit and add to decimal-number 
+    (fn [[;; Cumulative decimal number being reduced.
+          decimal-number
+          ;; Current binary power being processed.
+          power]
+         ;; Current bit being processed.
+         bit]
+      (let [;; Convert bit and add to decimal-number.
             decimal-number-plus-bit (+ decimal-number (* bit power))
-            ;;Prepare power for next iteration
+            ;; Prepare power for next iteration.
             power-next-bit (* 2 power)]
-        ;;Return vector for next reduce iteration
+        ;; Return vector for next reduce iteration.
         [decimal-number-plus-bit power-next-bit]))
-    ;;Init values for decimal-number and power
+    ;; Init values for [decimal-number power].
     [0 1]
-    ;;Reverse binary string, since it will be processed left to right
-    (reverse digits))))
+    ;; Reverse binary string, since it will be processed left to right.
+    (reverse 
+     ;; Binary string as vector ex [1 1 0 1].
+     binary))))
 
 (defn self-ref-rule
   [states world]
   (let [dimensions (get world :dimensions)
+        ;; Converts states list to vector.
         states-vec (into [] states)
+        ;; Removes center state (current cell being updated).
         states-vec-no-center (into (subvec states-vec 0 4) (subvec states-vec (inc 4)))
+        ;; Converts neigboring states binary str to decimal index, for use as rule key.
         rule-key (binary->number states-vec-no-center)
         cells (get world :cells)
-        rule-key-location [(quot rule-key (first dimensions)) (mod rule-key (first dimensions))]]
+        ;; Index into rows data structure.  2D rows list must be 'unwrapped', in order to index into it
+        ;; using rule-key.
+        rule-key-location [(quot rule-key (first dimensions)) (mod rule-key (first dimensions))]]   
     (get cells rule-key-location)))
 
 (defn -main
   []
-  (let [dimensions [16 16];;Generate a 256 cell world to represent all values of 8 bit string (from neighbor states)
+  (let [;; Generate a 256 cell world to represent all values of 8 bit string (from neighbor states).
+        dimensions [16 16]
         states [0 1]
-        world (make-world dimensions states (seed-random-state states))]
-    ;; (println world)
-    (let [s1 world
-          s2 (update-world s1 self-ref-rule)
-          s3 (update-world s2 self-ref-rule)
-          s4 (update-world s3 self-ref-rule)
-          s5 (update-world s4 self-ref-rule)
-          s6 (update-world s5 self-ref-rule)]
-      (print-states s1)
-      (println "---------")
-      (print-states s2)
-      (println "---------")
-      (print-states s3)
-      (println "---------")
-      (print-states s4)
-      (println "---------")
-      (print-states s5)
-      (println "---------")
-      (print-states s6)
-      (println "---------"))))
+        world-init-state (make-world dimensions states (seed-random-state states))
+        ;; Number of generations to render.
+        generations 10
+        world-final-state (reduce (fn [world-current-state generation]
+                              (let [world-next-state (update-world world-current-state self-ref-rule)]
+                                (println)
+                                (println (str "***Generation: " generation))
+                                (println)
+                                (print-states world-next-state)
+                                world-next-state))
+                            world-init-state
+                            ;; Generations collection to reduce.
+                            (range generations))
+        ]
+    (println)
+    (println "***Finished***")
+    (println)
+    (print-states world-final-state)))
 
 
 

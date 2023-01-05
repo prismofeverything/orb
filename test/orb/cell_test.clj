@@ -43,7 +43,7 @@
                       [1 0] state, [1 1] state}))))))
 
 ((deftest adjacent-states-test
-      (testing "Builds list of neighboring (given location) states, including given location"
+      (testing "Builds list of neighboring (given location) states, including given location."
         (let [
               location [2 2]
               state 5
@@ -54,22 +54,26 @@
           (is (= adjacent-states '(5 5 5 5 5 5 5 5 5 )))))))
 
 ((deftest binary->number-test
-      (testing "Context of the test assertions"
+      (testing "Converts binary to digital."
         (is (= (cell/binary->number [1 0 1 1]) 11)))))
 
 ((deftest number->binary-test
-      (testing "Context of the test assertions"
+      (testing "Converts digital to binary."
         (is (= (cell/number->binary 11) [1 0 1 1])))))
 
 ;;paramatized tests?
 ((deftest number->binary->number-9-test
-      (testing "Context of the test assertions"
+      (testing "Converts digital to binary, and back to digital."
         (is (= (cell/binary->number (cell/number->binary 9)) 9)))))
 
 ((deftest number->binary->number-0-test
-   (testing "Context of the test assertions"
+   (testing "Converts digital to binary, and back to digital."
      (is (= (cell/binary->number (cell/number->binary 0)) 0)))))
 
 ((deftest number->binary->number-1-test
-   (testing "Context of the test assertions"
+   (testing "Converts digital to binary, and back to digital."
      (is (= (cell/binary->number (cell/number->binary 1)) 1)))))
+
+((deftest all-neighbors-states-test
+      (testing "Filters to all neightbors (removes center, which is being updated)."
+        (is (= [1 0 0 0 0 0 0 1] (cell/all-neighbors-states [1 0 0 0 1 0 0 0 1]))))) )

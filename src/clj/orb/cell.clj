@@ -164,20 +164,26 @@
      ;; Binary string as vector ex [1 1 0 1].
      binary))))
 
-(defn self-ref-rule
-  [states world]
-  (let [dimensions (get world :dimensions)
+(defn all-neighbors-states
+  [states]
+  (let [
         ;; Converts states list to vector.
-        states-vec (into [] states)
-        ;; Removes center state (current cell being updated).
-        states-vec-no-center (into (subvec states-vec 0 4) (subvec states-vec (inc 4)))
+        states-vec (into [] states)]
+    (into (subvec states-vec 0 4) (subvec states-vec (inc 4)))))
+
+(defn self-ref-rule-factory
+  [neighbor-states-filter]
+  (fn [neighbor-states world]
+    (let [dimensions (get world :dimensions)
+        ;; Removes neighbor states unused by rule.
+          states-filtered (neighbor-states-filter neighbor-states)
         ;; Converts neigboring states binary str to decimal index, for use as rule key.
-        rule-key (binary->number states-vec-no-center)
-        cells (get world :cells)
+          rule-key (binary->number states-filtered)
+          cells (get world :cells)
         ;; Index into rows data structure.  2D rows list must be 'unwrapped', in order to index into it
         ;; using rule-key.
-        rule-key-location [(quot rule-key (first dimensions)) (mod rule-key (first dimensions))]]   
-    (get cells rule-key-location)))
+          rule-key-location [(quot rule-key (first dimensions)) (mod rule-key (first dimensions))]]
+      (get cells rule-key-location))))
 
 (defn -main
   []
@@ -187,17 +193,19 @@
         world-init-state (make-world dimensions states (seed-random-state states))
         ;; Number of generations to render.
         generations 10
+        ;; Generate a rule function, using all neighbors
+        all-neighbors-self-ref-rule (self-ref-rule-factory all-neighbors-states)
         world-final-state (reduce (fn [world-current-state generation]
-                              (let [world-next-state (update-world world-current-state self-ref-rule)]
-                                (println)
-                                (println (str "***Generation: " generation))
-                                (println)
-                                (print-states world-next-state)
-                                world-next-state))
+                                   (let [world-next-state (update-world world-current-state all-neighbors-self-ref-rule)]
+                                     (println)
+                                     (println (str "***Generation: " generation))
+                                     (println)
+                                     (print-states world-next-state)
+                                     world-next-state))
                             world-init-state
                             ;; Generations collection to reduce.
-                            (range generations))
-        ]
+                            (range generations))]
+        
     (println)
     (println "***Finished***")
     (println)

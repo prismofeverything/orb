@@ -171,6 +171,10 @@
         states-vec (into [] states)]
     (into (subvec states-vec 0 4) (subvec states-vec (inc 4)))))
 
+(defn east-west-neighbor-states
+  [states]
+  [(nth states 3) (nth states 5)])
+
 (defn self-ref-rule-factory
   [neighbor-states-filter]
   (fn [neighbor-states world]

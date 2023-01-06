@@ -76,4 +76,23 @@
 
 ((deftest all-neighbors-states-test
       (testing "Filters to all neightbors (removes center, which is being updated)."
-        (is (= [1 0 0 0 0 0 0 1] (cell/all-neighbors-states [1 0 0 0 1 0 0 0 1]))))) )
+        (is (= [0 0 0 1 1 0 0 0] (cell/all-neighbors-states [0 0 0 1 1 1 0 0 0]))))) )
+
+((deftest east-west-neighbors-states-test
+   (testing "Filters to all neightbors (removes center, which is being updated)."
+     (is (= [1 1] (cell/east-west-neighbor-states [0 0 0 1 1 1 0 0 0]))))))
+
+((deftest self-ref-fule-east-west-neighbors-states-test
+   (testing "Filters to all neightbors (removes center, which is being updated)."
+     (let [;; Generate a 256 cell world to represent all values of 8 bit string (from neighbor states).
+           dimensions [2 2]
+           states [0 1]
+           world-state-init [[1 0]
+                             [0 1]]
+           world-init (cell/make-world dimensions states (fn [[x y]] (nth (nth world-state-init y) x)))
+           ;; Generate a rule function, using only east and west neighbors
+           rule (cell/self-ref-rule-factory cell/east-west-neighbor-states)
+           world-next-state (cell/update-world world-init rule)]
+      ;;  (println world-next-state)
+       (is (= (vals (get world-next-state :cells)) [1 1 
+                                                    1 1]))))))

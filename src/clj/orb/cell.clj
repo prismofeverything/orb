@@ -179,6 +179,8 @@
   [states]
   [(nth states 1) (nth states 7)])
 
+;; Maps rule key (index) to cells grid location ([x y]). 
+;;
 ;; Index into rows data structure.  2D rows list must be 'unwrapped', in order to index into it
 ;; using rule-key.  Returns an [x y] location.
 (defn rule-key-location 

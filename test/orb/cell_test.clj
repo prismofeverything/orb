@@ -87,12 +87,12 @@
      (is (= [1 1] (cell/north-south-neighbor-states [0 1 0 0 0 0 0 1 0]))))))
 
 ((deftest rule-key-location-test-1
-   (testing "Context of the test assertions"
+   (testing "Maps rule key (index) to cells grid location ([x y])"
      (is (= [1 2] (cell/rule-key-location 5 [3 3]))))))
 
 
 ((deftest rule-key-location-test-2
-   (testing "Context of the test assertions"
+   (testing "Maps rule key (index) to cells grid location ([x y])"
      (is (= [0 0] (cell/rule-key-location 0 [3 3]))))))
 
 ;; ((deftest self-ref-rule-east-west-neighbors-states-test-case-1

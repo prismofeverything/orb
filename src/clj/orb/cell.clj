@@ -175,6 +175,16 @@
   [states]
   [(nth states 3) (nth states 5)])
 
+(defn north-south-neighbor-states
+  [states]
+  [(nth states 1) (nth states 7)])
+
+;; Index into rows data structure.  2D rows list must be 'unwrapped', in order to index into it
+;; using rule-key.  Returns an [x y] location.
+(defn rule-key-location 
+  [rule-key dimensions]
+  [(quot rule-key (first dimensions)) (mod rule-key (first dimensions))])
+
 (defn self-ref-rule-factory
   [neighbor-states-filter]
   (fn [neighbor-states world]
@@ -184,10 +194,8 @@
         ;; Converts neigboring states binary str to decimal index, for use as rule key.
           rule-key (binary->number states-filtered)
           cells (get world :cells)
-        ;; Index into rows data structure.  2D rows list must be 'unwrapped', in order to index into it
-        ;; using rule-key.
-          rule-key-location [(quot rule-key (first dimensions)) (mod rule-key (first dimensions))]]
-      (get cells rule-key-location))))
+          location (rule-key-location rule-key dimensions)]
+      (get cells location))))
 
 (defn -main
   []

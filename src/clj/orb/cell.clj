@@ -182,10 +182,18 @@
 ;; Maps rule key (index) to cells grid location ([x y]). 
 ;;
 ;; Index into rows data structure.  2D rows list must be 'unwrapped', in order to index into it
-;; using rule-key.  Returns an [x y] location.
-(defn rule-key-location 
+;; using rule-key.  Unwrapps 'column-wise' (counts down entire first column, proceeds to second..). 
+;; Returns a [col row] location.
+(defn decimal-rule-key-to-location 
   [rule-key dimensions]
-  [(quot rule-key (first dimensions)) (mod rule-key (first dimensions))])
+  (let [col (quot rule-key (second dimensions))
+        row (mod rule-key (second dimensions))]
+    [col row]))
+
+(defn location-to-state
+  [world location]
+  (let [cells (get world :cells)]
+    (get cells location)))
 
 (defn self-ref-rule-factory
   [neighbor-states-filter]
@@ -195,35 +203,36 @@
           states-filtered (neighbor-states-filter neighbor-states)
         ;; Converts neigboring states binary str to decimal index, for use as rule key.
           rule-key (binary->number states-filtered)
-          cells (get world :cells)
-          location (rule-key-location rule-key dimensions)]
-      (get cells location))))
+          location (decimal-rule-key-to-location rule-key dimensions)]
+      (location-to-state world location))))
 
 (defn -main
   []
   (let [;; Generate a 256 cell world to represent all values of 8 bit string (from neighbor states).
-        dimensions [16 16]
+        cols 32
+        rows 16
+        dimensions [cols rows]
         states [0 1]
-        world-init-state (make-world dimensions states (seed-random-state states))
+        ;; world-init-state (make-world dimensions states (seed-random-state states))
+        world-init-state (make-world dimensions states (fn [location] (if (#{[0 9] [3 3] [4 3]} location) 1 0)))
         ;; Number of generations to render.
-        generations 10
+        generations 1
         ;; Generate a rule function, using all neighbors
-        all-neighbors-self-ref-rule (self-ref-rule-factory all-neighbors-states)
-        world-final-state (reduce (fn [world-current-state generation]
-                                   (let [world-next-state (update-world world-current-state all-neighbors-self-ref-rule)]
-                                     (println)
-                                     (println (str "***Generation: " generation))
-                                     (println)
-                                     (print-states world-next-state)
-                                     world-next-state))
-                            world-init-state
-                            ;; Generations collection to reduce.
-                            (range generations))]
+        all-neighbors-self-ref-rule (self-ref-rule-factory identity)]
         
-    (println)
-    (println "***Finished***")
-    (println)
-    (print-states world-final-state)))
+    (println "***Init***")
+    (print-states world-init-state)
+    (reduce (fn [world-current-state generation]
+              (let [world-next-state (update-world world-current-state all-neighbors-self-ref-rule)]
+                (println)
+                (println (str "***Generation: " generation))
+                (println)
+                (print-states world-next-state)
+                world-next-state))
+            world-init-state
+                            ;; Generations collection to reduce.
+            (range generations))
+    ))
 
 
 

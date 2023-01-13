@@ -192,7 +192,7 @@
 ;; Cell [3 2] is alive in gen 2 since in gen 1, its neighbor states bit string produces: 
 ;; [0 0 0 0 0 1 0 0 1].  In decimal, this is 9.  The cell at index 9 is alive in gen 1.
 ;;
-((deftest self-ref-rule-north-south-neighbors-states-test-case-1a
+((deftest self-ref-rule-1a
    (testing "Updates world state to next generation correctly."
      (let [;; Generate a 512 cell world to represent all values of 9 bit string (the state of the cell being updated, and all of it's neighbors).
            cols 32
@@ -211,7 +211,7 @@
 
 ;; Test 1b sets up the same configuration, transposed to a different part of the world
 ;;
-((deftest self-ref-rule-north-south-neighbors-states-test-case-1b
+((deftest self-ref-rule-1b
    (testing "Updates world state to next generation correctly."
      (let [;; Generate a 512 cell world to represent all values of 9 bit string (the state of the cell being updated, and all of it's neighbors).
            cols 32
@@ -267,7 +267,7 @@
 ;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 ;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 ;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-((deftest self-ref-rule-north-south-neighbors-states-test-case-2a
+((deftest self-ref-rule-2a
    (testing "Updates world state to next generation correctly."
      (let [;; Generate a 512 cell world to represent all values of 9 bit string (the state of the cell being updated, and all of it's neighbors).
            cols 32
@@ -291,7 +291,7 @@
        (is (= world-gen-2 expected-gen-2))))))
 
 ;;Test 3 (a bit more chaos)
-;; ((deftest self-ref-rule-north-south-neighbors-states-test-case-2a
+;; ((deftest self-ref-rule-3a
 ;;    (testing "Updates world state to next generation correctly."
 ;;      (let [;; Generate a 512 cell world to represent all values of 9 bit string (the state of the cell being updated, and all of it's neighbors).
 ;;            cols 32

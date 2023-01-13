@@ -107,7 +107,6 @@
            world (cell/make-world dimensions states (fn [[x y]] (nth (nth world-state-init y) x)))
            ;; Generate a rule function, using only east and west neighbors
            state (cell/location-to-state world [0 0])]
-      ;;  (println world-next-state)
        (is (= state 1))))))
 
 
@@ -145,17 +144,177 @@
            state (cell/location-to-state world [1 1])] ;; [col row]
        (is (= state 0))))))
 
-;; ((deftest self-ref-rule-north-south-neighbors-states-test-case-1
+;; INTEGRATION TESTS
+;;
+;; The following tests show that units tested above can be integrated to produce a self referential cellular autata
+;;
+;; Test 1a (simple) 
+;; Only the neighbors affect the next generation (the seeded 'alive' rule key value has no affect)
+;;
+;;sets up an initial world state:
+;;
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;;
+;; and shows that in the next generation, the state will correctly be updated to:
+;;
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;;
+;; Cell [3 2] is alive in gen 2 since in gen 1, its neighbor states bit string produces: 
+;; [0 0 0 0 0 1 0 0 1].  In decimal, this is 9.  The cell at index 9 is alive in gen 1.
+;;
+((deftest self-ref-rule-north-south-neighbors-states-test-case-1a
+   (testing "Updates world state to next generation correctly."
+     (let [;; Generate a 512 cell world to represent all values of 9 bit string (the state of the cell being updated, and all of it's neighbors).
+           cols 32
+           rows 16
+           dimensions [cols rows]
+           states [0 1]
+           seeded-gen-1-alive-rule-key [0 9] ;; maps to world index 9, in binary 000001001
+           seeded-gen-1-alive-neighbors [[3 3] [4 3]] ;; arrange neighbors to map to 000001001
+           seeded-gen-1-alive-locations (into #{seeded-gen-1-alive-rule-key} seeded-gen-1-alive-neighbors)
+           seeded-gen-2-expected-alive [3 2]
+           world-gen-1 (cell/make-world dimensions states (fn [location] (if (seeded-gen-1-alive-locations location) 1 0)))
+           all-neighbors-self-ref-rule (cell/self-ref-rule-factory identity)
+           world-gen-2 (cell/update-world world-gen-1 all-neighbors-self-ref-rule)
+           expected-gen-2 (cell/make-world dimensions states (fn [location] (if (#{seeded-gen-2-expected-alive} location) 1 0)))]
+       (is (= world-gen-2 expected-gen-2))))))
+
+;; Test 1b sets up the same configuration, transposed to a different part of the world
+;;
+((deftest self-ref-rule-north-south-neighbors-states-test-case-1b
+   (testing "Updates world state to next generation correctly."
+     (let [;; Generate a 512 cell world to represent all values of 9 bit string (the state of the cell being updated, and all of it's neighbors).
+           cols 32
+           rows 16
+           dimensions [cols rows]
+           states [0 1]
+           seeded-gen-1-alive-rule-key [0 9] ;; maps to world index 9, in binary 000001001
+           seeded-gen-1-alive-neighbors [[5 8] [6 8]] ;; arrange neighbors to map to 000001001
+           seeded-gen-1-alive-locations (into #{seeded-gen-1-alive-rule-key} seeded-gen-1-alive-neighbors)
+           seeded-gen-2-expected-alive [5 7]
+           world-gen-1 (cell/make-world dimensions states (fn [location] (if (seeded-gen-1-alive-locations location) 1 0)))
+           all-neighbors-self-ref-rule (cell/self-ref-rule-factory identity)
+           world-gen-2 (cell/update-world world-gen-1 all-neighbors-self-ref-rule)
+           expected-gen-2 (cell/make-world dimensions states (fn [location] (if (#{seeded-gen-2-expected-alive} location) 1 0)))]
+       (is (= world-gen-2 expected-gen-2))))))
+
+;; Test 2 (a bit of chaos).  
+;;
+;; The seeded alive value affects the next generation.
+;;
+;; Initial config:
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;;
+;; Gen 2:
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;; 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+((deftest self-ref-rule-north-south-neighbors-states-test-case-2a
+   (testing "Updates world state to next generation correctly."
+     (let [;; Generate a 512 cell world to represent all values of 9 bit string (the state of the cell being updated, and all of it's neighbors).
+           cols 32
+           rows 16
+           dimensions [cols rows]
+           states [0 1]
+           seeded-gen-1-alive-rule-key [0 4] ;; maps to world index 4, in binary 000000100
+                                             ;; arrange neighbors to map to 001010101  
+                                             ;; In our mapping scheme: 
+                                             ;; 0 0 1 
+                                             ;; 0 0 0
+                                             ;; 0 0 0
+           seeded-gen-1-alive-neighbors [[10 10]]
+           seeded-gen-1-alive-locations (into #{seeded-gen-1-alive-rule-key} seeded-gen-1-alive-neighbors)
+           seeded-gen-2-expected-alive [9 11] ;; SE of single seeded-gen-1-alive-neighbor
+           inadvertently-alive [31 5] ;; SE of seeded-gen-1-alive-rule-key
+           world-gen-1 (cell/make-world dimensions states (fn [location] (if (seeded-gen-1-alive-locations location) 1 0)))
+           all-neighbors-self-ref-rule (cell/self-ref-rule-factory identity)
+           world-gen-2 (cell/update-world world-gen-1 all-neighbors-self-ref-rule)
+           expected-gen-2 (cell/make-world dimensions states (fn [location] (if (#{seeded-gen-2-expected-alive inadvertently-alive} location) 1 0)))]
+       (is (= world-gen-2 expected-gen-2))))))
+
+;;Test 3 (a bit more chaos)
+;; ((deftest self-ref-rule-north-south-neighbors-states-test-case-2a
 ;;    (testing "Updates world state to next generation correctly."
-;;      (let [;; Generate a 4 cell world to represent all values of 2 bit string (from N and S neighbor states) .
-;;            dimensions [2 2]
+;;      (let [;; Generate a 512 cell world to represent all values of 9 bit string (the state of the cell being updated, and all of it's neighbors).
+;;            cols 32
+;;            rows 16
+;;            dimensions [cols rows]
 ;;            states [0 1]
-;;            world-state-init [[1 0]
-;;                              [0 1]]
-;;            world-init (cell/make-world dimensions states (fn [[x y]] (nth (nth world-state-init y) x)))
-;;            ;; Generate a rule function, using only east and west neighbors
-;;            rule (cell/self-ref-rule-factory cell/north-south-neighbor-states)
-;;            world-next-state (cell/update-world world-init rule)]
-;;       ;;  (println world-next-state)
-;;        (is (= (vals (get world-next-state :cells)) '(1 1 
-;;                                                      1 1)))))))
+;;            seeded-gen-1-alive-rule-key [5 5] ;; maps to world index 85, in binary 001010101
+;;                                              ;; arrange neighbors to map to 001010101  
+;;                                              ;; In our mapping scheme: 
+;;                                              ;; 0 0 1 
+;;                                              ;; 0 1 0
+;;                                              ;; 1 0 1
+;;            seeded-gen-1-alive-neighbors [[10 8] [9 9] [8 10] [10 10]]
+;;            seeded-gen-1-alive-locations (into #{seeded-gen-1-alive-rule-key} seeded-gen-1-alive-neighbors)
+;;            seeded-gen-2-expected-alive [9 9]
+;;            inadvertently-alive [10 8]
+;;            world-gen-1 (cell/make-world dimensions states (fn [location] (if (seeded-gen-1-alive-locations location) 1 0)))
+;;            all-neighbors-self-ref-rule (cell/self-ref-rule-factory identity)
+;;            world-gen-2 (cell/update-world world-gen-1 all-neighbors-self-ref-rule)
+;;            expected-gen-2 (cell/make-world dimensions states (fn [location] (if (#{seeded-gen-2-expected-alive inadvertently-alive} location) 1 0)))]
+;;        (cell/print-states world-gen-1)
+;;        (println)
+;;        (cell/print-states world-gen-2)
+;;        (println)
+;;        (cell/print-states expected-gen-2)
+;;        (is (= 1 1))))))

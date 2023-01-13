@@ -3,7 +3,7 @@
             [orb.cell :as cell]))
 
 (deftest generate-rows-test
-  (testing "Generates list of rows."
+  (testing "Generates list of rows.  Each row location is stored as [col row]."
     (let [rows (cell/generate-rows [4 4])]
       (is (= rows '(([0 0] [1 0] [2 0] [3 0]) 
                     ([0 1] [1 1] [2 1] [3 1])
@@ -76,4 +76,86 @@
 
 ((deftest all-neighbors-states-test
       (testing "Filters to all neightbors (removes center, which is being updated)."
-        (is (= [1 0 0 0 0 0 0 1] (cell/all-neighbors-states [1 0 0 0 1 0 0 0 1]))))) )
+        (is (= [0 0 0 1 1 0 0 0] (cell/all-neighbors-states [0 0 0 1 1 1 0 0 0]))))) )
+
+((deftest east-west-neighbors-states-test
+   (testing "Filters to E and W neightbors."
+     (is (= [1 1] (cell/east-west-neighbor-states [0 0 0 1 1 1 0 0 0]))))))
+
+((deftest north-south-neighbors-states-test
+   (testing "Filters to N and S neightbors."
+     (is (= [1 1] (cell/north-south-neighbor-states [0 1 0 
+                                                     0 0 0 
+                                                     0 1 0]))))))
+
+((deftest rule-key-location-test-1
+   (testing "Maps rule key (index) to cells grid location ([x y])"
+     (is (= [1 2] (cell/decimal-rule-key-to-location 5 [3 3]))))))
+
+
+((deftest rule-key-location-test-2
+   (testing "Maps rule key (index) to cells grid location ([x y])"
+     (is (= [0 0] (cell/decimal-rule-key-to-location 0 [3 3]))))))
+
+
+((deftest location-to-state-0-0
+   (testing "Location is mapped to the correct state."
+     (let [dimensions [2 2]
+           states [0 1]
+           world-state-init [[1 1]
+                             [0 0]]
+           world (cell/make-world dimensions states (fn [[x y]] (nth (nth world-state-init y) x)))
+           ;; Generate a rule function, using only east and west neighbors
+           state (cell/location-to-state world [0 0])]
+      ;;  (println world-next-state)
+       (is (= state 1))))))
+
+
+((deftest location-to-state-0-1
+   (testing "Location is mapped to the correct state."
+     (let [dimensions [2 2]
+           states [0 1]
+           world-state-init [[1 1]
+                             [0 0]]
+           world (cell/make-world dimensions states (fn [[x y]] (nth (nth world-state-init y) x)))
+           ;; Generate a rule function, using only east and west neighbors
+           state (cell/location-to-state world [0 1])] ;; [col row]
+       (is (= state 0))))))
+
+((deftest location-to-state-1-0
+   (testing "Location is mapped to the correct state."
+     (let [dimensions [2 2]
+           states [0 1]
+           world-state-init [[1 1]
+                             [0 0]]
+           world (cell/make-world dimensions states (fn [[x y]] (nth (nth world-state-init y) x)))
+           ;; Generate a rule function, using only east and west neighbors
+           state (cell/location-to-state world [1 0])] ;; [col row]
+       (is (= state 1))))))
+
+
+((deftest location-to-state-1-1
+   (testing "Location is mapped to the correct state."
+     (let [dimensions [2 2]
+           states [0 1]
+           world-state-init [[1 1]
+                             [0 0]]
+           world (cell/make-world dimensions states (fn [[x y]] (nth (nth world-state-init y) x)))
+           ;; Generate a rule function, using only east and west neighbors
+           state (cell/location-to-state world [1 1])] ;; [col row]
+       (is (= state 0))))))
+
+;; ((deftest self-ref-rule-north-south-neighbors-states-test-case-1
+;;    (testing "Updates world state to next generation correctly."
+;;      (let [;; Generate a 4 cell world to represent all values of 2 bit string (from N and S neighbor states) .
+;;            dimensions [2 2]
+;;            states [0 1]
+;;            world-state-init [[1 0]
+;;                              [0 1]]
+;;            world-init (cell/make-world dimensions states (fn [[x y]] (nth (nth world-state-init y) x)))
+;;            ;; Generate a rule function, using only east and west neighbors
+;;            rule (cell/self-ref-rule-factory cell/north-south-neighbor-states)
+;;            world-next-state (cell/update-world world-init rule)]
+;;       ;;  (println world-next-state)
+;;        (is (= (vals (get world-next-state :cells)) '(1 1 
+;;                                                      1 1)))))))
